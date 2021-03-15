@@ -70,9 +70,13 @@ public class Board : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             SelectChecker(x, z);
-            
-
         }
+
+        if(_selectedChecker!=null)
+        {
+            UprageCheckDragPosition(_selectedChecker);
+        }
+
         if (Input.GetMouseButtonUp(0))
         {
             TryMove((int)_startDragPosition.x, (int)_startDragPosition.y, x, z);
@@ -84,8 +88,23 @@ public class Board : MonoBehaviour
         _startDragPosition = new Vector2(x1, z1);
         _endDragPosition = new Vector2(x2, z2);
         _selectedChecker = _checkers[x1, z1];
-       
-        _selectedChecker.gameObject.transform.position = new Vector3(_endDragPosition.x, 0, -_endDragPosition.y);
+
+        if (x2 < 0 || x2 > _checkers.GetLength(0) || z2 < 0 || z2 > _checkers.GetLength(1))
+        {
+             if(_selectedChecker!= null)
+            {
+                _selectedChecker.gameObject.transform.position = new Vector3(_startDragPosition.x, 0, -_startDragPosition.y);
+            }
+            _startDragPosition = Vector2.zero;
+            _selectedChecker = null;
+            return;
+        }
+        if (_selectedChecker != null)
+        {
+            _selectedChecker.gameObject.transform.position = new Vector3(_endDragPosition.x, 0, -_endDragPosition.y);
+            _selectedChecker = null;
+        }
+            
 
 
     }
@@ -121,12 +140,19 @@ public class Board : MonoBehaviour
         {
             _selectedChecker = selectedChecker;
             _startDragPosition = _mouseDownPosition;
-           
-            
-        }
-       
-            
 
-       
+        }
+
+
+
+
+    }
+
+    private void UprageCheckDragPosition(Checker checker)
+    {
+        RaycastHit hit;
+        float rayLength = 25.0f;
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, rayLength, LayerMask.GetMask("Board")))
+            checker.transform.position = hit.point + Vector3.up;
     }
 }
