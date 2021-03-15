@@ -95,25 +95,18 @@ public class Board : MonoBehaviour
 
         if (x2 < 0 || x2 > _checkers.GetLength(0) || z2 < 0 || z2 > _checkers.GetLength(1))
         {
-             if(_selectedChecker!= null)
+            if (_selectedChecker != null)
             {
                 _selectedChecker.gameObject.transform.position = new Vector3(_startDragPosition.x, 0, -_startDragPosition.y);
             }
-            _startDragPosition = Vector2.zero - Vector2.one;
-            _selectedChecker = null;
+            Deselect();
             return;
         }
         if (_selectedChecker != null)
         {
-            if(_startDragPosition == _endDragPosition)
-            {
-               _selectedChecker.gameObject.transform.position = new Vector3(_startDragPosition.x, 0, -_startDragPosition.y);
-                _startDragPosition = Vector2.zero-Vector2.one;
-                _selectedChecker = null;
-                return;
-            }
+           
             if (_selectedChecker.IsAbleToMove(_checkers, x1, z1, x2, z2,_isWhiteTurn))
-           {
+            {
                 if (Math.Abs(x1 - x2) == 2)
                 {
                     Checker checkerToDelete = _checkers[(x1 + x2) / 2, (z1 + z2) / 2];
@@ -129,6 +122,12 @@ public class Board : MonoBehaviour
 
             EndTurn();
             }
+            else
+            {
+                _selectedChecker.gameObject.transform.position = new Vector3(_startDragPosition.x, 0, -_startDragPosition.y);
+                Deselect();
+                return;
+            }
 
 
         }
@@ -137,10 +136,11 @@ public class Board : MonoBehaviour
 
     }
 
+    
+
     private void EndTurn()
     {
-        _selectedChecker = null;
-        _startDragPosition = Vector2.zero-Vector2.one;
+         Deselect();
         _isWhiteTurn = !_isWhiteTurn;
     }
 
@@ -178,9 +178,12 @@ public class Board : MonoBehaviour
 
         }
 
+    }
 
-
-
+    private void Deselect()
+    {
+        _startDragPosition = Vector2.zero - Vector2.one;
+        _selectedChecker = null;
     }
 
     private void UprageCheckDragPosition(Checker checker)

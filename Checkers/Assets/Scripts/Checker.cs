@@ -2,11 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum Side
-{
-    White,
-    Black
-}
+
 
 public class Checker : MonoBehaviour
 {
@@ -45,6 +41,17 @@ public class Checker : MonoBehaviour
                     return true;
                 }
             }
+        }
+        return false;
+    }
+
+    public bool IsForcedToMove(Checker[,]board,int x,int z,int beatDelta)
+    {
+        foreach (var checker in board)
+        {
+            Vector3 checkerPos = new Vector3(checker.transform.position.x,checker.transform.position.y,-checker.transform.position.z);
+            if (Mathf.Abs(checkerPos.x - x) == beatDelta && Mathf.Abs(checkerPos.z - z) == beatDelta)
+                return true;
         }
         return false;
     }
