@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
 public class Board : MonoBehaviour
 {
     [SerializeField] private GameObject _whitePrefab;
@@ -17,6 +19,8 @@ public class Board : MonoBehaviour
     private Checker _selectedChecker;
     private Vector2 _startDragPosition;
     private Vector2 _endDragPosition;
+
+    private bool _isWhiteTurn;
 
     public void GenerateBoard()
     {
@@ -57,9 +61,9 @@ public class Board : MonoBehaviour
     private void Start()
     {
         GenerateBoard();
+        _isWhiteTurn = true;
     }
 
-    // Update is called once per frame
     private void Update()
     {
         RecordMousePosition();
@@ -95,18 +99,49 @@ public class Board : MonoBehaviour
             {
                 _selectedChecker.gameObject.transform.position = new Vector3(_startDragPosition.x, 0, -_startDragPosition.y);
             }
-            _startDragPosition = Vector2.zero;
+            _startDragPosition = Vector2.zero - Vector2.one;
             _selectedChecker = null;
             return;
         }
         if (_selectedChecker != null)
         {
+            if(_startDragPosition == _endDragPosition)
+            {
+               _selectedChecker.gameObject.transform.position = new Vector3(_startDragPosition.x, 0, -_startDragPosition.y);
+                _startDragPosition = Vector2.zero-Vector2.one;
+                _selectedChecker = null;
+                return;
+            }
+            if (_selectedChecker.IsAbleToMove(_checkers, x1, z1, x2, z2,_isWhiteTurn))
+           {
+                if (Math.Abs(x1 - x2) == 2)
+                {
+                    Checker checkerToDelete = _checkers[(x1 + x2) / 2, (z1 + z2) / 2];
+                    if (checkerToDelete != null)
+                    {
+                        _checkers[(x1 + x2) / 2, (z1 + z2) / 2] = null;
+                        Destroy(checkerToDelete.gameObject);
+                    }
+                }
+            _checkers[x2, z2] = _selectedChecker;
+            _checkers[x1, z1] = null;
             _selectedChecker.gameObject.transform.position = new Vector3(_endDragPosition.x, 0, -_endDragPosition.y);
-            _selectedChecker = null;
+
+            EndTurn();
+            }
+
+
         }
             
 
 
+    }
+
+    private void EndTurn()
+    {
+        _selectedChecker = null;
+        _startDragPosition = Vector2.zero-Vector2.one;
+        _isWhiteTurn = !_isWhiteTurn;
     }
 
     private void RecordMousePosition()
