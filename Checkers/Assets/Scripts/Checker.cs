@@ -31,12 +31,12 @@ public class Checker : MonoBehaviour
         {
             int stepdelta = 1;
             int beatDelta = 2;
-            if(Mathf.Abs(x2-x1)==stepdelta && Mathf.Abs(z2-z1)==stepdelta && _isWhite==isWhiteturn)
+            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, stepdelta))
                 return true;
-            if(Mathf.Abs(x2 - x1) == beatDelta && Mathf.Abs(z2 - z1) == beatDelta && _isWhite == isWhiteturn)
+            if (CheckActionCondition(x1,z1,x2,z2,isWhiteturn,beatDelta))
             {
                 Checker checkerToDelete = board[(x1 + x2) / 2, (z1 + z2) / 2];
-                if(checkerToDelete!=null && checkerToDelete._isWhite != _isWhite)
+                if (checkerToDelete != null && checkerToDelete._isWhite != _isWhite)
                 {
                     return true;
                 }
@@ -45,13 +45,26 @@ public class Checker : MonoBehaviour
         return false;
     }
 
-    public bool IsForcedToMove(Checker[,]board,int x,int z,int beatDelta)
+    private bool CheckActionCondition(int x1, int z1, int x2, int z2, bool isWhiteturn, int conditionDelta)
     {
-        foreach (var checker in board)
+        return Mathf.Abs(x2 - x1) == conditionDelta && Mathf.Abs(z2 - z1) == conditionDelta && _isWhite == isWhiteturn;
+    }
+
+    public bool IsForcedToMove(Checker[,]board,int x1,int z1,bool isWhiteTurn,int beatDelta)
+    {
+        for (int x = 0; x < board.GetLength(0); x++)
         {
-            Vector3 checkerPos = new Vector3(checker.transform.position.x,checker.transform.position.y,-checker.transform.position.z);
-            if (Mathf.Abs(checkerPos.x - x) == beatDelta && Mathf.Abs(checkerPos.z - z) == beatDelta)
-                return true;
+            for (int z = 0; z < board.GetLength(1); z++)
+            {
+                if(CheckActionCondition(x1,z1,x,z,isWhiteTurn,beatDelta) && board[x,z] == null)
+                {
+                    Checker checkerToDelete = board[(x1 + x) / 2, (z1 + z) / 2];
+                    if (checkerToDelete!=null && checkerToDelete.IsWhite != IsWhite)
+                    {
+                        return true;
+                    }
+                }
+            }
         }
         return false;
     }

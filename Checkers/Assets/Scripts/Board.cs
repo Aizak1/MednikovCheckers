@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+
 
 
 
@@ -11,6 +13,7 @@ public class Board : MonoBehaviour
     [SerializeField] private GameObject _blackPrefab;
     [SerializeField] private float _checkerSpeed;
     private Checker[,] _checkers = new Checker[8, 8];
+    private List<Checker> _forcedToMoveCheckers;
 
     private Vector3 _initialCoordinates = Vector3.zero;
     private Vector3 _boardOffset = new Vector3(0.55f, 0, 0.7f);
@@ -21,6 +24,7 @@ public class Board : MonoBehaviour
     private Vector2 _endDragPosition;
 
     private bool _isWhiteTurn;
+    private bool _hasKilled;
 
     public void GenerateBoard()
     {
@@ -89,6 +93,7 @@ public class Board : MonoBehaviour
 
     private void TryMove(int x1, int z1, int x2, int z2)
     {
+        _forcedToMoveCheckers = SearchForPossibleKills();
         _startDragPosition = new Vector2(x1, z1);
         _endDragPosition = new Vector2(x2, z2);
         _selectedChecker = _checkers[x1, z1];
@@ -114,13 +119,22 @@ public class Board : MonoBehaviour
                     {
                         _checkers[(x1 + x2) / 2, (z1 + z2) / 2] = null;
                         Destroy(checkerToDelete.gameObject);
+                        _hasKilled = true;
                     }
                 }
-            _checkers[x2, z2] = _selectedChecker;
-            _checkers[x1, z1] = null;
-            _selectedChecker.gameObject.transform.position = new Vector3(_endDragPosition.x, 0, -_endDragPosition.y);
 
-            EndTurn();
+                if(_forcedToMoveCheckers.Count!=0 && !_hasKilled)
+                {
+                    _selectedChecker.gameObject.transform.position = new Vector3(_startDragPosition.x, 0, -_startDragPosition.y);
+                    Deselect();
+                    return;
+                }
+
+                _checkers[x2, z2] = _selectedChecker;
+                _checkers[x1, z1] = null;
+                _selectedChecker.gameObject.transform.position = new Vector3(_endDragPosition.x, 0, -_endDragPosition.y);
+
+                EndTurn();
             }
             else
             {
@@ -141,6 +155,7 @@ public class Board : MonoBehaviour
     private void EndTurn()
     {
          Deselect();
+        _hasKilled = false;
         _isWhiteTurn = !_isWhiteTurn;
     }
 
@@ -171,10 +186,22 @@ public class Board : MonoBehaviour
             return;
 
         Checker selectedChecker = _checkers[x, z];
-        if (selectedChecker != null)
+        if (selectedChecker != null && selectedChecker.IsWhite == _isWhiteTurn)
         {
-            _selectedChecker = selectedChecker;
-            _startDragPosition = _mouseDownPosition;
+            if (_forcedToMoveCheckers.Count == 0)
+            {
+                _selectedChecker = selectedChecker;
+                _startDragPosition = _mouseDownPosition;
+            }
+            else
+            {
+                if (_forcedToMoveCheckers.Find(x => x == selectedChecker) == null)
+                    return;
+
+                _selectedChecker = selectedChecker;
+                _startDragPosition = _mouseDownPosition;
+            }
+           
 
         }
 
@@ -192,5 +219,23 @@ public class Board : MonoBehaviour
         float rayLength = 25.0f;
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, rayLength, LayerMask.GetMask("Board")))
             checker.transform.position = hit.point + Vector3.up;
+    }
+
+    private List<Checker> SearchForPossibleKills()
+    {
+        _forcedToMoveCheckers = new List<Checker>();
+        int beatDelta = 2;
+        for (int i = 0; i < _checkers.GetLength(0); i++)
+        {
+            for (int j = 0; j < _checkers.GetLength(1); j++)
+            {
+                if(_checkers[i,j] != null && _checkers[i,j].IsWhite == _isWhiteTurn)
+                {
+                    if (_checkers[i, j].IsForcedToMove(_checkers, i, j, _isWhiteTurn, beatDelta))
+                        _forcedToMoveCheckers.Add(_checkers[i, j]);
+                }
+            }
+        }
+        return _forcedToMoveCheckers;
     }
 }
