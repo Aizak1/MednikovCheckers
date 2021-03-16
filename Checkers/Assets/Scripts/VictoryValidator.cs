@@ -13,12 +13,20 @@ public class VictoryValidator : MonoBehaviour
     void Start()
     {
         board = FindObjectOfType<Board>();
+       
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if(board.GetGameState == GameState.Ended)
+        {
+            _endMenu.enabled = true;
+            if (board.WhiteIsWinner)
+                _text.text = "White Wins";
+            else
+                _text.text = "Black Wins";
+        }
         
     }
 

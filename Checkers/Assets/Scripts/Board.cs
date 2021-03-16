@@ -99,7 +99,11 @@ public class Board : MonoBehaviour
         {
             TryMove((int)_startDragPosition.x, (int)_startDragPosition.y, (int)_mouseDownPosition.x,(int)_mouseDownPosition.y);
         }
+        if (_gameState == GameState.Started)
+        {
             CheckForVictory();
+        }
+           
     }
 
     private void CheckForVictory()
@@ -120,16 +124,16 @@ public class Board : MonoBehaviour
         if (!hasWhite && hasBlack)
         {
             WhiteIsWinner = false;
-            Debug.Log("Black Wins");
+            _gameState = GameState.Ended;
         }
            
         if (!hasBlack && hasWhite)
         {
             WhiteIsWinner = true;
-            Debug.Log("White Wins");
+            _gameState = GameState.Ended;
         }
             
-        _gameState = GameState.Ended;
+       
 
 
     }
