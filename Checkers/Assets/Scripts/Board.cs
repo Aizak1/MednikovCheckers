@@ -72,12 +72,11 @@ public class Board : MonoBehaviour
     {
         RecordMousePosition();
 
-        int x = (int)_mouseDownPosition.x;
-        int z = (int)_mouseDownPosition.y;
+        
 
         if (Input.GetMouseButtonDown(0))
         {
-            SelectChecker(x, z);
+            SelectChecker((int)_mouseDownPosition.x, (int)_mouseDownPosition.y);
         }
 
         if(_selectedChecker!=null)
@@ -87,7 +86,7 @@ public class Board : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            TryMove((int)_startDragPosition.x, (int)_startDragPosition.y, x, z);
+            TryMove((int)_startDragPosition.x, (int)_startDragPosition.y, (int)_mouseDownPosition.x,(int)_mouseDownPosition.y);
         }
     }
 
@@ -154,7 +153,22 @@ public class Board : MonoBehaviour
 
     private void EndTurn()
     {
+        if (_selectedChecker != null)
+        {
+            if(_selectedChecker.IsWhite && _endDragPosition.x == 7)
+            {
+                _selectedChecker.BecomeKing();
+            }
+            if(!_selectedChecker.IsWhite && _endDragPosition.x == 0)
+            {
+                _selectedChecker.BecomeKing();
+            }
+        }
          Deselect();
+
+        if (SearchForPossibleKills((int)_endDragPosition.x, (int)_endDragPosition.y).Count != 0 && _hasKilled)
+            return;
+
         _hasKilled = false;
         _isWhiteTurn = !_isWhiteTurn;
     }
@@ -224,17 +238,26 @@ public class Board : MonoBehaviour
     private List<Checker> SearchForPossibleKills()
     {
         _forcedToMoveCheckers = new List<Checker>();
-        int beatDelta = 2;
         for (int i = 0; i < _checkers.GetLength(0); i++)
         {
             for (int j = 0; j < _checkers.GetLength(1); j++)
             {
                 if(_checkers[i,j] != null && _checkers[i,j].IsWhite == _isWhiteTurn)
                 {
-                    if (_checkers[i, j].IsForcedToMove(_checkers, i, j, _isWhiteTurn, beatDelta))
+                    if (_checkers[i, j].IsForcedToMove(_checkers, i, j, _isWhiteTurn, _checkers[i,j].BeatDelta))
                         _forcedToMoveCheckers.Add(_checkers[i, j]);
                 }
             }
+        }
+        return _forcedToMoveCheckers;
+    }
+
+    private List<Checker> SearchForPossibleKills(int x,int z)
+    {
+        _forcedToMoveCheckers = new List<Checker>();
+        if (_checkers[x, z].IsForcedToMove(_checkers, x, z, _isWhiteTurn, _checkers[x, z].BeatDelta))
+        {
+            _forcedToMoveCheckers.Add(_checkers[x, z]);
         }
         return _forcedToMoveCheckers;
     }
