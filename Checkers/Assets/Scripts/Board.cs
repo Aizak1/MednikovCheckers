@@ -5,13 +5,19 @@ using System.Linq;
 using UnityEngine;
 
 
-
+public enum GameState
+{
+    Started,
+    Ended
+}
 
 public class Board : MonoBehaviour
 {
     [SerializeField] private GameObject _whitePrefab;
     [SerializeField] private GameObject _blackPrefab;
     [SerializeField] private float _checkerSpeed;
+
+    private GameState _gameState;
     private Checker[,] _checkers = new Checker[8, 8];
     private List<Checker> _forcedToMoveCheckers;
 
@@ -26,6 +32,10 @@ public class Board : MonoBehaviour
     private bool _isWhiteTurn;
     private bool _hasKilled;
 
+    public GameState GetGameState => _gameState;
+
+    public bool WhiteIsWinner { get; private set; }
+
     public void GenerateBoard()
     {
         for (int x = 0; x < 8; x++)
@@ -37,16 +47,13 @@ public class Board : MonoBehaviour
                 initialCoordinate = 1;
 
                if(!(x>2 && x<5))
-                for (int z = initialCoordinate; z < 8; z += 2)
-                {
+                 for (int z = initialCoordinate; z < 8; z += 2)
+                 {
                     if (x >= 0 && x < 3)
                         GenerateChecker(_whitePrefab, _initialCoordinates, x, z);
                     else 
                         GenerateChecker(_blackPrefab, _initialCoordinates, x, z);
-                }
-            
-           
-
+                 }
           
         }
       
@@ -66,6 +73,10 @@ public class Board : MonoBehaviour
     {
         GenerateBoard();
         _isWhiteTurn = true;
+        _forcedToMoveCheckers = new List<Checker>();
+        _gameState = GameState.Started;
+
+       
     }
 
     private void Update()
@@ -88,6 +99,39 @@ public class Board : MonoBehaviour
         {
             TryMove((int)_startDragPosition.x, (int)_startDragPosition.y, (int)_mouseDownPosition.x,(int)_mouseDownPosition.y);
         }
+            CheckForVictory();
+    }
+
+    private void CheckForVictory()
+    {
+        bool hasWhite = false;
+        bool hasBlack = false;
+        for (int i = 0; i < _checkers.GetLength(0); i++)
+        {
+            for (int j = 0; j < _checkers.GetLength(1); j++)
+            {
+                if (_checkers[i, j] != null && _checkers[i, j].IsWhite)
+                  hasWhite = true;
+                if (_checkers[i, j] != null && !_checkers[i, j].IsWhite)
+                    hasBlack = true;
+
+            }
+        }
+        if (!hasWhite && hasBlack)
+        {
+            WhiteIsWinner = false;
+            Debug.Log("Black Wins");
+        }
+           
+        if (!hasBlack && hasWhite)
+        {
+            WhiteIsWinner = true;
+            Debug.Log("White Wins");
+        }
+            
+        _gameState = GameState.Ended;
+
+
     }
 
     private void TryMove(int x1, int z1, int x2, int z2)

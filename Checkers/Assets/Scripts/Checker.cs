@@ -35,7 +35,6 @@ public class Checker : MonoBehaviour
         }
         if (_isSimple || _isKing)
         {
-            
             if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _stepDelta))
                 return true;
             if (CheckActionCondition(x1,z1,x2,z2,isWhiteturn,_beatDelta))
@@ -49,7 +48,7 @@ public class Checker : MonoBehaviour
         }
         if (_isKing)
         {
-            List<Checker> checkersBetweenPositions = new List<Checker>();
+            List<Checker> checkersBetweenKingPositions = new List<Checker>();
             if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, Mathf.Abs(x2 - x1)))
             {
                 int nextRawZstart = z1+1;
@@ -61,7 +60,7 @@ public class Checker : MonoBehaviour
                     {
                         if (board[i, j] != null)
                         {
-                            checkersBetweenPositions.Add(board[i, j]);
+                            checkersBetweenKingPositions.Add(board[i, j]);
                            
                         }
                     }
@@ -70,7 +69,7 @@ public class Checker : MonoBehaviour
                     nextRawZend++;
                    
                 }
-                if (checkersBetweenPositions.Count <= 1)
+                if (checkersBetweenKingPositions.Count <= 1)
                     return true;
                 else
                     return false;
