@@ -992,43 +992,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _whitePrefab: {fileID: 2786557725113536853, guid: 825d2252fe6c15b4896e5721e958f067, type: 3}
   _blackPrefab: {fileID: 869900321697154151, guid: 54c893bf4b602d34789e7e0130a1db67, type: 3}
-  _checkerSpeed: 0.3
---- !u!114 &1773077075
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773077073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 163a69a8fb2117e449f003f097b5c6be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1773077076
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773077073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0caa1b9bccc2a174d98b546996960454, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &1773077077
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1773077073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 39ac09e4d96459c438fb257203ed88ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!65 &1773077078
 BoxCollider:
   m_ObjectHideFlags: 0

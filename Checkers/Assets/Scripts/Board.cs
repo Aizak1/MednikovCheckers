@@ -167,6 +167,11 @@ public class Board : MonoBehaviour
                         _hasKilled = true;
                     }
                 }
+                if (Math.Abs(x1 - x2) > 2)
+                {
+
+                  
+                }
 
                 if (_forcedToMoveCheckers.Count != 0 && !_hasKilled)
                 {

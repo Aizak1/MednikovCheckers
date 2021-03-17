@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -33,7 +34,7 @@ public class Checker : MonoBehaviour
         {
             return false;
         }
-        if (_isSimple || _isKing)
+        if (_isSimple)
         {
             if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _stepDelta))
                 if (_isWhite && x2 > x1)
@@ -53,24 +54,37 @@ public class Checker : MonoBehaviour
         }
         if (_isKing)
         {
-            List<Checker> checkersBetweenKingPositions = new List<Checker>();
+              List<Checker> checkersBetweenKingPositions = new List<Checker>();
             if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, Mathf.Abs(x2 - x1)))
             {
-                for (int x = x1 + 2; x < x2; x += 2)
+                Vector2 start = new Vector2(x1, z1);
+                Vector2 end = new Vector2(x2, z2);
+                Vector2 direction = (start - end).normalized;
+                //Ќаправление с учетом расположени€ осей и доски
+                Vector2 trueDiretion = new Vector2(-1 * direction.x / Mathf.Abs(direction.x), -1 * direction.y / Mathf.Abs(direction.y));
+
+                int stepX, stepZ;
+                int stepCounter = 0;
+                stepX = x1 + (int)trueDiretion.x;
+                stepZ = z1 + (int)trueDiretion.y;
+
+                while (stepCounter!= Mathf.Abs(x2-x1))
                 {
-                    for (int z = z1 + 2; z < z2; z += 2)
+                    if(board[stepX,stepZ] != null)
                     {
-                        Checker checkerToDelete = board[(x1 + x) / 2, (z1 + z) / 2];
-                        if (checkerToDelete != null && checkerToDelete._isWhite != _isWhite)
-                        {
-                            checkersBetweenKingPositions.Add(checkerToDelete);
-                        }
-                        x1++;
-                        z1++;
+                        checkersBetweenKingPositions.Add(board[stepX, stepZ]);
                     }
+                    stepX += (int)trueDiretion.x;
+                    stepZ += (int)trueDiretion.y;
+                    stepCounter++;
                 }
-                if (checkersBetweenKingPositions.Count <= 1)
+                
+                if (checkersBetweenKingPositions.Count == 0)
                     return true;
+                else if (checkersBetweenKingPositions.Count==1 && checkersBetweenKingPositions.All(x=>x.IsWhite !=_isWhite) )
+                {
+                    return true;
+                }
                 else
                     return false;
 
