@@ -15,6 +15,8 @@ public class Board : MonoBehaviour
 {
     [SerializeField] private GameObject _whitePrefab;
     [SerializeField] private GameObject _blackPrefab;
+    [SerializeField] private Material _materialToHighlightForces;
+    private Material _initialMaterial;
 
     private GameState _gameState;
     private Checker[,] _checkers = new Checker[8, 8];
@@ -73,6 +75,7 @@ public class Board : MonoBehaviour
         GenerateBoard();
         _isWhiteTurn = true;
         _forcedToMoveCheckers = new List<Checker>();
+        _initialMaterial = _whitePrefab.GetComponent<Renderer>().sharedMaterial;
         _gameState = GameState.Started;
 
 
@@ -87,8 +90,14 @@ public class Board : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             _forcedToMoveCheckers = SearchForPossibleKills();
+            if (_forcedToMoveCheckers.Count != 0)
+            {
+                ChangeSelectionState(_materialToHighlightForces);
+            }
             SelectChecker((int)_mouseDownPosition.x, (int)_mouseDownPosition.y);
         }
+
+       
 
         if (_selectedChecker != null)
         {
@@ -97,13 +106,25 @@ public class Board : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
+            ChangeSelectionState(_initialMaterial);
             TryMove((int)_startDragPosition.x, (int)_startDragPosition.y, (int)_mouseDownPosition.x, (int)_mouseDownPosition.y);
+            
+
         }
         if (_gameState == GameState.Started)
         {
             CheckForVictory();
         }
 
+    }
+
+    private void ChangeSelectionState(Material material)
+    {
+        foreach (var item in _forcedToMoveCheckers)
+        {
+            var renderer = item.gameObject.GetComponent<Renderer>();
+            renderer.sharedMaterial = material;
+        }
     }
 
     private void CheckForVictory()
@@ -207,6 +228,7 @@ public class Board : MonoBehaviour
                 _selectedChecker.gameObject.transform.position = new Vector3(_endDragPosition.x, 0, -_endDragPosition.y);
 
                 EndTurn();
+               
             }
             else
             {
@@ -226,6 +248,7 @@ public class Board : MonoBehaviour
 
     private void EndTurn()
     {
+      
         if (_selectedChecker != null)
         {
             if (_selectedChecker.IsWhite && _endDragPosition.x == 7)
@@ -244,6 +267,7 @@ public class Board : MonoBehaviour
 
         _hasKilled = false;
         _isWhiteTurn = !_isWhiteTurn;
+        
     }
 
     private void RecordMousePosition()
