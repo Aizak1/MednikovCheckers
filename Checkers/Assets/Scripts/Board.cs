@@ -15,7 +15,6 @@ public class Board : MonoBehaviour
 {
     [SerializeField] private GameObject _whitePrefab;
     [SerializeField] private GameObject _blackPrefab;
-    [SerializeField] private float _checkerSpeed;
 
     private GameState _gameState;
     private Checker[,] _checkers = new Checker[8, 8];
@@ -46,28 +45,28 @@ public class Board : MonoBehaviour
             else
                 initialCoordinate = 1;
 
-               if(!(x>2 && x<5))
-                 for (int z = initialCoordinate; z < 8; z += 2)
-                 {
+            if (!(x > 2 && x < 5))
+                for (int z = initialCoordinate; z < 8; z += 2)
+                {
                     if (x >= 0 && x < 3)
                         GenerateChecker(_whitePrefab, _initialCoordinates, x, z);
-                    else 
+                    else
                         GenerateChecker(_blackPrefab, _initialCoordinates, x, z);
-                 }
-          
+                }
+
         }
-      
+
     }
 
-    private void GenerateChecker(GameObject prefab,Vector3 position,int x, int z)
+    private void GenerateChecker(GameObject prefab, Vector3 position, int x, int z)
     {
-        GameObject piece = Instantiate(prefab, new Vector3(position.x + x, position.y, position.z - z),Quaternion.Euler(-89.98f,0,0));
+        GameObject piece = Instantiate(prefab, new Vector3(position.x + x, position.y, position.z - z), Quaternion.Euler(-89.98f, 0, 0));
         Checker checker = piece.GetComponent<Checker>();
         _checkers[x, z] = checker;
-        
+
     }
 
-   
+
 
     private void Start()
     {
@@ -76,34 +75,35 @@ public class Board : MonoBehaviour
         _forcedToMoveCheckers = new List<Checker>();
         _gameState = GameState.Started;
 
-       
+
     }
 
     private void Update()
     {
         RecordMousePosition();
 
-        
+
 
         if (Input.GetMouseButtonDown(0))
         {
+            _forcedToMoveCheckers = SearchForPossibleKills();
             SelectChecker((int)_mouseDownPosition.x, (int)_mouseDownPosition.y);
         }
 
-        if(_selectedChecker!=null)
+        if (_selectedChecker != null)
         {
             UprageCheckDragPosition(_selectedChecker);
         }
 
         if (Input.GetMouseButtonUp(0))
         {
-            TryMove((int)_startDragPosition.x, (int)_startDragPosition.y, (int)_mouseDownPosition.x,(int)_mouseDownPosition.y);
+            TryMove((int)_startDragPosition.x, (int)_startDragPosition.y, (int)_mouseDownPosition.x, (int)_mouseDownPosition.y);
         }
         if (_gameState == GameState.Started)
         {
             CheckForVictory();
         }
-           
+
     }
 
     private void CheckForVictory()
@@ -115,7 +115,7 @@ public class Board : MonoBehaviour
             for (int j = 0; j < _checkers.GetLength(1); j++)
             {
                 if (_checkers[i, j] != null && _checkers[i, j].IsWhite)
-                  hasWhite = true;
+                    hasWhite = true;
                 if (_checkers[i, j] != null && !_checkers[i, j].IsWhite)
                     hasBlack = true;
 
@@ -126,24 +126,22 @@ public class Board : MonoBehaviour
             WhiteIsWinner = false;
             _gameState = GameState.Ended;
         }
-           
+
         if (!hasBlack && hasWhite)
         {
             WhiteIsWinner = true;
             _gameState = GameState.Ended;
         }
-            
-       
+
+
 
 
     }
 
     private void TryMove(int x1, int z1, int x2, int z2)
     {
-        _forcedToMoveCheckers = SearchForPossibleKills();
-        _startDragPosition = new Vector2(x1, z1);
+       
         _endDragPosition = new Vector2(x2, z2);
-        _selectedChecker = _checkers[x1, z1];
 
         if (x2 < 0 || x2 > _checkers.GetLength(0) || z2 < 0 || z2 > _checkers.GetLength(1))
         {
@@ -156,8 +154,8 @@ public class Board : MonoBehaviour
         }
         if (_selectedChecker != null)
         {
-           
-            if (_selectedChecker.IsAbleToMove(_checkers, x1, z1, x2, z2,_isWhiteTurn))
+
+            if (_selectedChecker.IsAbleToMove(_checkers, x1, z1, x2, z2, _isWhiteTurn))
             {
                 if (Math.Abs(x1 - x2) == 2)
                 {
@@ -170,7 +168,7 @@ public class Board : MonoBehaviour
                     }
                 }
 
-                if(_forcedToMoveCheckers.Count!=0 && !_hasKilled)
+                if (_forcedToMoveCheckers.Count != 0 && !_hasKilled)
                 {
                     _selectedChecker.gameObject.transform.position = new Vector3(_startDragPosition.x, 0, -_startDragPosition.y);
                     Deselect();
@@ -192,27 +190,27 @@ public class Board : MonoBehaviour
 
 
         }
-            
+
 
 
     }
 
-    
+
 
     private void EndTurn()
     {
         if (_selectedChecker != null)
         {
-            if(_selectedChecker.IsWhite && _endDragPosition.x == 7)
+            if (_selectedChecker.IsWhite && _endDragPosition.x == 7)
             {
                 _selectedChecker.BecomeKing();
             }
-            if(!_selectedChecker.IsWhite && _endDragPosition.x == 0)
+            if (!_selectedChecker.IsWhite && _endDragPosition.x == 0)
             {
                 _selectedChecker.BecomeKing();
             }
         }
-         Deselect();
+        Deselect();
 
         if (SearchForPossibleKills((int)_endDragPosition.x, (int)_endDragPosition.y).Count != 0 && _hasKilled)
             return;
@@ -227,18 +225,18 @@ public class Board : MonoBehaviour
         {
             RaycastHit hit;
             float rayLength = 25.0f;
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition) ,out hit, rayLength, LayerMask.GetMask("Board")))
+            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, rayLength, LayerMask.GetMask("Board")))
             {
                 _mouseDownPosition.x = (int)(hit.point.x + _boardOffset.x);
                 _mouseDownPosition.y = (int)(Math.Abs(hit.point.z) + _boardOffset.z);
-                
+
             }
             else
             {
                 _mouseDownPosition.x = -1;
                 _mouseDownPosition.y = -1;
             }
-            
+
         }
     }
 
@@ -257,13 +255,18 @@ public class Board : MonoBehaviour
             }
             else
             {
-                if (_forcedToMoveCheckers.Find(x => x == selectedChecker) == null)
-                    return;
-
-                _selectedChecker = selectedChecker;
-                _startDragPosition = _mouseDownPosition;
+                foreach (var item in _forcedToMoveCheckers)
+                {
+                    if (selectedChecker == item)
+                    {
+                        _selectedChecker = selectedChecker;
+                        _startDragPosition = _mouseDownPosition;
+                        break;
+                    }
+                }
+               
             }
-           
+
 
         }
 
@@ -290,9 +293,9 @@ public class Board : MonoBehaviour
         {
             for (int j = 0; j < _checkers.GetLength(1); j++)
             {
-                if(_checkers[i,j] != null && _checkers[i,j].IsWhite == _isWhiteTurn)
+                if (_checkers[i, j] != null && _checkers[i, j].IsWhite == _isWhiteTurn)
                 {
-                    if (_checkers[i, j].IsForcedToMove(_checkers, i, j, _isWhiteTurn, _checkers[i,j].BeatDelta))
+                    if (_checkers[i, j].IsForcedToMove(_checkers, i, j, _isWhiteTurn, _checkers[i, j].BeatDelta))
                         _forcedToMoveCheckers.Add(_checkers[i, j]);
                 }
             }
@@ -300,7 +303,7 @@ public class Board : MonoBehaviour
         return _forcedToMoveCheckers;
     }
 
-    private List<Checker> SearchForPossibleKills(int x,int z)
+    private List<Checker> SearchForPossibleKills(int x, int z)
     {
         _forcedToMoveCheckers = new List<Checker>();
         if (_checkers[x, z].IsForcedToMove(_checkers, x, z, _isWhiteTurn, _checkers[x, z].BeatDelta))

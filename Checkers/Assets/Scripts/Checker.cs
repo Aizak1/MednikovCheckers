@@ -18,7 +18,7 @@ public class Checker : MonoBehaviour
 
     public bool IsWhite => _isWhite;
 
-    public  int StepDelta => _stepDelta;
+    public int StepDelta => _stepDelta;
 
     public int BeatDelta => _beatDelta;
 
@@ -27,7 +27,7 @@ public class Checker : MonoBehaviour
         _isSimple = true;
         _isKing = false;
     }
-    public bool IsAbleToMove(Checker[,] board, int x1, int z1, int x2, int z2,bool isWhiteturn)
+    public bool IsAbleToMove(Checker[,] board, int x1, int z1, int x2, int z2, bool isWhiteturn)
     {
         if (board[x2, z2] != null)
         {
@@ -37,7 +37,7 @@ public class Checker : MonoBehaviour
         {
             if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _stepDelta))
                 return true;
-            if (CheckActionCondition(x1,z1,x2,z2,isWhiteturn,_beatDelta))
+            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _beatDelta))
             {
                 Checker checkerToDelete = board[(x1 + x2) / 2, (z1 + z2) / 2];
                 if (checkerToDelete != null && checkerToDelete._isWhite != _isWhite)
@@ -51,9 +51,9 @@ public class Checker : MonoBehaviour
             List<Checker> checkersBetweenKingPositions = new List<Checker>();
             if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, Mathf.Abs(x2 - x1)))
             {
-                for (int x = x1+2; x < x2; x+=2)
+                for (int x = x1 + 2; x < x2; x += 2)
                 {
-                    for (int z = z1+2; z < z2; z+=2)
+                    for (int z = z1 + 2; z < z2; z += 2)
                     {
                         Checker checkerToDelete = board[(x1 + x) / 2, (z1 + z) / 2];
                         if (checkerToDelete != null && checkerToDelete._isWhite != _isWhite)
@@ -68,10 +68,10 @@ public class Checker : MonoBehaviour
                     return true;
                 else
                     return false;
-                
+
             }
-                
-                
+
+
         }
         return false;
     }
@@ -81,26 +81,26 @@ public class Checker : MonoBehaviour
         return Mathf.Abs(x2 - x1) == conditionDelta && Mathf.Abs(z2 - z1) == conditionDelta && _isWhite == isWhiteTurn;
     }
 
-    public bool IsForcedToMove(Checker[,]board,int x1,int z1,bool isWhiteTurn,int beatDelta)
+    public bool IsForcedToMove(Checker[,] board, int x1, int z1, bool isWhiteTurn, int beatDelta)
     {
-       
+
         for (int x = 0; x < board.GetLength(0); x++)
         {
             for (int z = 0; z < board.GetLength(1); z++)
             {
-                
-               if (CheckActionCondition(x1, z1, x, z, isWhiteTurn, beatDelta) && board[x, z] == null)
-               {
+
+                if (CheckActionCondition(x1, z1, x, z, isWhiteTurn, beatDelta) && board[x, z] == null)
+                {
                     Checker checkerToDelete = board[(x1 + x) / 2, (z1 + z) / 2];
                     if (checkerToDelete != null && checkerToDelete.IsWhite != IsWhite)
                     {
-                      return true;
+                        return true;
                     }
-               }
+                }
 
-               
+
             }
-            
+
         }
         return false;
     }
