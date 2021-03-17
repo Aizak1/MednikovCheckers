@@ -169,8 +169,30 @@ public class Board : MonoBehaviour
                 }
                 if (Math.Abs(x1 - x2) > 2)
                 {
-
-                  
+                    Vector2 start = new Vector2(x1, z1);
+                    Vector2 end = new Vector2(x2, z2);
+                    Vector2 direction = (start - end).normalized;
+                    //Ќаправление с учетом расположени€ осей и доски
+                    Vector2 trueDiretion = new Vector2(-1 * direction.x / Mathf.Abs(direction.x), -1 * direction.y / Mathf.Abs(direction.y));
+                    int stepX, stepZ;
+                    int stepCounter = 0;
+                    stepX = x1 + (int)trueDiretion.x;
+                    stepZ = z1 + (int)trueDiretion.y;
+                    while (stepCounter != Mathf.Abs(x2 - x1))
+                    {
+                        Checker checkerToDelete = _checkers[stepX, stepZ];
+                        if (checkerToDelete != null)
+                        {
+                            _checkers[stepX, stepZ] = null;
+                            Destroy(checkerToDelete.gameObject);
+                            _hasKilled = true;
+                            break;
+                        }
+                        stepX += (int)trueDiretion.x;
+                        stepZ += (int)trueDiretion.y;
+                        stepCounter++;
+                    }
+                   
                 }
 
                 if (_forcedToMoveCheckers.Count != 0 && !_hasKilled)
@@ -210,7 +232,7 @@ public class Board : MonoBehaviour
             {
                 _selectedChecker.BecomeKing();
             }
-            if (!_selectedChecker.IsWhite && _endDragPosition.x == 0)
+            else if (!_selectedChecker.IsWhite && _endDragPosition.x == 0)
             {
                 _selectedChecker.BecomeKing();
             }
@@ -241,6 +263,7 @@ public class Board : MonoBehaviour
                 _mouseDownPosition.x = -1;
                 _mouseDownPosition.y = -1;
             }
+            
 
         }
     }
@@ -300,7 +323,7 @@ public class Board : MonoBehaviour
             {
                 if (_checkers[i, j] != null && _checkers[i, j].IsWhite == _isWhiteTurn)
                 {
-                    if (_checkers[i, j].IsForcedToMove(_checkers, i, j, _isWhiteTurn, _checkers[i, j].BeatDelta))
+                    if (_checkers[i, j].IsForcedToMove(_checkers, i, j, _isWhiteTurn))
                         _forcedToMoveCheckers.Add(_checkers[i, j]);
                 }
             }
@@ -311,7 +334,7 @@ public class Board : MonoBehaviour
     private List<Checker> SearchForPossibleKills(int x, int z)
     {
         _forcedToMoveCheckers = new List<Checker>();
-        if (_checkers[x, z].IsForcedToMove(_checkers, x, z, _isWhiteTurn, _checkers[x, z].BeatDelta))
+        if (_checkers[x, z].IsForcedToMove(_checkers, x, z, _isWhiteTurn))
         {
             _forcedToMoveCheckers.Add(_checkers[x, z]);
         }

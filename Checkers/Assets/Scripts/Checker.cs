@@ -7,8 +7,8 @@ using UnityEngine;
 
 public class Checker : MonoBehaviour
 {
-    private bool _isSimple;
-    private bool _isKing;
+    private bool _isSimple = true;
+    private bool _isKing = false;
     private const int _stepDelta = 1;
     private const int _beatDelta = 2;
     [SerializeField] private bool _isWhite;
@@ -25,8 +25,7 @@ public class Checker : MonoBehaviour
 
     public Checker()
     {
-        _isSimple = true;
-        _isKing = false;
+        
     }
     public bool IsAbleToMove(Checker[,] board, int x1, int z1, int x2, int z2, bool isWhiteturn)
     {
@@ -100,27 +99,133 @@ public class Checker : MonoBehaviour
         return Mathf.Abs(x2 - x1) == conditionDelta && Mathf.Abs(z2 - z1) == conditionDelta && _isWhite == isWhiteTurn;
     }
 
-    public bool IsForcedToMove(Checker[,] board, int x1, int z1, bool isWhiteTurn, int beatDelta)
+    public bool IsForcedToMove(Checker[,] board, int x1, int z1, bool isWhiteTurn)
     {
-
-        for (int x = 0; x < board.GetLength(0); x++)
+        if (_isSimple)
         {
-            for (int z = 0; z < board.GetLength(1); z++)
+            for (int x = 0; x < board.GetLength(0); x++)
             {
-
-                if (CheckActionCondition(x1, z1, x, z, isWhiteTurn, beatDelta) && board[x, z] == null)
+                for (int z = 0; z < board.GetLength(1); z++)
                 {
-                    Checker checkerToDelete = board[(x1 + x) / 2, (z1 + z) / 2];
-                    if (checkerToDelete != null && checkerToDelete.IsWhite != IsWhite)
+
+                    if (CheckActionCondition(x1, z1, x, z, isWhiteTurn, _beatDelta) && board[x, z] == null)
                     {
-                        return true;
+                        Checker checkerToDelete = board[(x1 + x) / 2, (z1 + z) / 2];
+                        if (checkerToDelete != null && checkerToDelete.IsWhite != IsWhite)
+                        {
+                            return true;
+                        }
                     }
+
+
                 }
 
+            }
+        }
+        if (_isKing)
+        {
 
+            int stepsToUp = 7 - x1;
+            int stepsToRight = 7 - z1;
+            int stepsToBottom = Mathf.Abs(0 - x1);
+            int stepsToLeft = Mathf.Abs(0 - z1);
+            int stepsToUpAndRight = stepsToUp < stepsToRight ? stepsToUp : stepsToRight;
+            int stepsToBottomAndLeft = stepsToBottom < stepsToLeft ? stepsToBottom : stepsToLeft;
+            int steptsToUpAndLeft = stepsToUp < stepsToLeft ? stepsToUp : stepsToLeft;
+            int steptsToBottomAndRight = stepsToBottom < stepsToRight ? stepsToBottom : stepsToRight;
+            int stepX = x1;
+            int stepZ = z1;
+            
+            for (int i = 0; i < stepsToUpAndRight; i++)
+            {
+                if (board[stepX, stepZ] != null && board[stepX,stepZ].IsWhite != _isWhite)
+                {
+                    int jx = stepX + 1;
+                    int jz = stepZ + 1;
+                    for (int j = i; j < stepsToUpAndRight; j++)
+                    {
+                        if (board[stepX + 1, stepZ + 1] != null)
+                            return false;
+                        if (board[jx, jz] == null)
+                            return true;
+                        jx++;
+                        jz++;
+                    }
+                }
+                stepX++;
+                stepZ++;
+            }
+
+            stepX = x1;
+            stepZ = z1;
+            for (int i = 0; i < stepsToBottomAndLeft; i++)
+            {
+                if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != _isWhite)
+                {
+                    int jx = stepX - 1;
+                    int jz = stepZ - 1;
+                    for (int j = i; j < stepsToBottomAndLeft; j++)
+                    {
+                        if (board[stepX - 1, stepZ - 1] != null)
+                            return false;
+                        if (board[jx, jz] == null)
+                            return true;
+                        jx--;
+                        jz--;
+                    }
+                }
+                stepX--;
+                stepZ--;
+            }
+            stepX = x1;
+            stepZ = z1;
+
+            for (int i = 0; i < steptsToUpAndLeft; i++)
+            {
+                if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != _isWhite)
+                {
+                    int jx = stepX + 1;
+                    int jz = stepZ - 1;
+                    for (int j = i; j < steptsToUpAndLeft; j++)
+                    {
+                        if (board[stepX + 1, stepZ - 1] != null)
+                            return false;
+                        if (board[jx, jz] == null)
+                            return true;
+                        jx--;
+                        jz--;
+                    }
+                }
+                stepX++;
+                stepZ--;
+            }
+            stepX = x1;
+            stepZ = z1;
+
+            for (int i = 0; i < steptsToBottomAndRight; i++)
+            {
+                if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != _isWhite)
+                {
+                    int jx = stepX - 1;
+                    int jz = stepZ + 1;
+                    for (int j = i; j < steptsToBottomAndRight; j++)
+                    {
+                        if (board[stepX - 1, stepZ + 1] != null)
+                            return false;
+                        if (board[jx, jz] == null)
+                            return true;
+                        jx--;
+                        jz++;
+                    }
+                }
+                stepX--;
+                stepZ++;
             }
 
         }
+        
+
+
         return false;
     }
     public void BecomeKing()
