@@ -36,7 +36,12 @@ public class Checker : MonoBehaviour
         if (_isSimple || _isKing)
         {
             if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _stepDelta))
-                return true;
+                if (_isWhite && x2 > x1)
+                    return true;
+                else if (!_isWhite && x2 < x1)
+                    return true;
+                else
+                    return false;
             if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _beatDelta))
             {
                 Checker checkerToDelete = board[(x1 + x2) / 2, (z1 + z2) / 2];
