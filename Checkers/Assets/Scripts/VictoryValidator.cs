@@ -22,10 +22,12 @@ public class VictoryValidator : MonoBehaviour
         if(board.GetGameState == GameState.Ended)
         {
             _endMenu.enabled = true;
-            if (board.WhiteIsWinner)
+            if (board.Result == ResultOfGame.WhiteWins)
                 _text.text = "White Wins";
-            else
+            else if (board.Result == ResultOfGame.BlackWins)
                 _text.text = "Black Wins";
+            else
+                _text.text = "Draw";
         }
         
     }

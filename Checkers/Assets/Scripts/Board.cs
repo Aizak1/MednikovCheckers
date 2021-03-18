@@ -10,6 +10,12 @@ public enum GameState
     Started,
     Ended
 }
+public enum ResultOfGame
+{
+    WhiteWins,
+    BlackWins,
+    Draw
+}
 
 public class Board : MonoBehaviour
 {
@@ -32,11 +38,12 @@ public class Board : MonoBehaviour
     private Mover _mover;
 
     private bool _isWhiteTurn;
+    private static int _stepsWithOutKills = 0;
     private bool _hasKilled;
 
     public GameState GetGameState => _gameState;
 
-    public bool WhiteIsWinner { get; private set; }
+    public ResultOfGame Result { get; private set; }
 
     public void GenerateBoard()
     {
@@ -124,7 +131,7 @@ public class Board : MonoBehaviour
         }
         if (_gameState == GameState.Started)
         {
-            CheckForVictory();
+            CheckForEndGameCondition();
         }
 
     }
@@ -139,7 +146,7 @@ public class Board : MonoBehaviour
         }
     }
 
-    private void CheckForVictory()
+    private void CheckForEndGameCondition()
     {
         bool hasWhite = false;
         bool hasBlack = false;
@@ -156,13 +163,18 @@ public class Board : MonoBehaviour
         }
         if (!hasWhite && hasBlack)
         {
-            WhiteIsWinner = false;
+            Result = ResultOfGame.BlackWins;
             _gameState = GameState.Ended;
         }
 
         if (!hasBlack && hasWhite)
         {
-            WhiteIsWinner = true;
+            Result = ResultOfGame.WhiteWins;
+            _gameState = GameState.Ended;
+        }
+        if (_stepsWithOutKills == 15)
+        {
+            Result = ResultOfGame.Draw;
             _gameState = GameState.Ended;
         }
 
@@ -264,10 +276,14 @@ public class Board : MonoBehaviour
             }
         }
         _selecter.Deselect(ref _selectedChecker);
+        if (_hasKilled)
+            _stepsWithOutKills = 0;
+        else
+            _stepsWithOutKills++;
 
         if (SearchForPossibleKills(x2, z2).Count != 0 && _hasKilled)
             return;
-
+       
         _hasKilled = false;
         _isWhiteTurn = !_isWhiteTurn;
         
