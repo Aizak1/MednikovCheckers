@@ -23,12 +23,13 @@ public class Board : MonoBehaviour
     private List<Checker> _forcedToMoveCheckers;
 
     private Vector3 _initialCoordinates = Vector3.zero;
-    private Vector3 _boardOffset = new Vector3(0.55f, 0, 0.7f);
 
-    private Vector2 _mouseDownPosition;
     private Checker _selectedChecker;
-    private Vector2 _startDragPosition;
-    private Vector2 _endDragPosition;
+    private Vector2Int _selectionPosition;
+
+    private Selecter _selecter;
+    private RuleValidator _validator;
+    private Mover _mover;
 
     private bool _isWhiteTurn;
     private bool _hasKilled;
@@ -74,7 +75,10 @@ public class Board : MonoBehaviour
     {
         GenerateBoard();
         _isWhiteTurn = true;
+        _validator = GetComponent<RuleValidator>();
         _forcedToMoveCheckers = new List<Checker>();
+        _selecter = GetComponent<Selecter>();
+        _mover = GetComponent<Mover>();
         _initialMaterial = _whitePrefab.GetComponent<Renderer>().sharedMaterial;
         _gameState = GameState.Started;
 
@@ -83,31 +87,38 @@ public class Board : MonoBehaviour
 
     private void Update()
     {
-        RecordMousePosition();
-
-
-
+        var mouseDownPosition = _selecter.RecordMousePosition();
         if (Input.GetMouseButtonDown(0))
         {
             _forcedToMoveCheckers = SearchForPossibleKills();
             if (_forcedToMoveCheckers.Count != 0)
             {
-                ChangeSelectionState(_materialToHighlightForces);
+                ChangeHighlightState(_materialToHighlightForces);
             }
-            SelectChecker((int)_mouseDownPosition.x, (int)_mouseDownPosition.y);
+
+            if(!_validator.OutOfBounds(_checkers, mouseDownPosition.x, mouseDownPosition.y))
+            {
+                var cell = _selecter.PickACell(_checkers, mouseDownPosition.x, mouseDownPosition.y);
+
+                if (_validator.SelectionValidate(cell, _isWhiteTurn, _forcedToMoveCheckers))
+                {
+                    _selectedChecker = _selecter.SelectChecker(cell);
+                    _selectionPosition = new Vector2Int(mouseDownPosition.x, mouseDownPosition.y);
+                }
+            }
+           
         }
 
-       
 
-        if (_selectedChecker != null)
+        if (_selectedChecker!=null)
         {
-            UprageCheckDragPosition(_selectedChecker);
+            _mover.UprageCheckDragPosition(_selectedChecker);
         }
 
         if (Input.GetMouseButtonUp(0))
         {
-            ChangeSelectionState(_initialMaterial);
-            TryMove((int)_startDragPosition.x, (int)_startDragPosition.y, (int)_mouseDownPosition.x, (int)_mouseDownPosition.y);
+            ChangeHighlightState(_initialMaterial);
+            MakeTurn(_selectionPosition.x, _selectionPosition.y, mouseDownPosition.x, mouseDownPosition.y);
             
 
         }
@@ -118,7 +129,7 @@ public class Board : MonoBehaviour
 
     }
 
-    private void ChangeSelectionState(Material material)
+    private void ChangeHighlightState(Material material)
     {
         foreach (var item in _forcedToMoveCheckers)
         {
@@ -155,33 +166,29 @@ public class Board : MonoBehaviour
             _gameState = GameState.Ended;
         }
 
-
-
-
     }
 
-    private void TryMove(int x1, int z1, int x2, int z2)
+    private void MakeTurn(int x1, int z1, int x2, int z2)
     {
-       
-        _endDragPosition = new Vector2(x2, z2);
-
-        if (x2 < 0 || x2 > _checkers.GetLength(0) || z2 < 0 || z2 > _checkers.GetLength(1))
+        if (_selectedChecker==null)
+             return;
+        
+        if (_validator.OutOfBounds(_checkers, x2, z2))
         {
             if (_selectedChecker != null)
             {
-                _selectedChecker.gameObject.transform.position = new Vector3(_startDragPosition.x, 0, -_startDragPosition.y);
+                _mover.VisualTransition(_selectedChecker, x1, z1);
             }
-            Deselect();
+            _selecter.Deselect(ref _selectedChecker);
             return;
-        }
-        if (_selectedChecker != null)
-        {
+        } 
 
+        
             if (_selectedChecker.IsAbleToMove(_checkers, x1, z1, x2, z2, _isWhiteTurn))
             {
                 
-                if (Math.Abs(x1 - x2) == 2)
-                {
+               if (Math.Abs(x1 - x2) == 2)
+               {
                     Checker checkerToDelete = _checkers[(x1 + x2) / 2, (z1 + z2) / 2];
                     if (checkerToDelete != null)
                     {
@@ -220,124 +227,50 @@ public class Board : MonoBehaviour
 
                 if (_forcedToMoveCheckers.Count != 0 && !_hasKilled)
                 {
-                    _selectedChecker.gameObject.transform.position = new Vector3(_startDragPosition.x, 0, -_startDragPosition.y);
-                    Deselect();
+                    _selectedChecker.gameObject.transform.position = new Vector3(x1, 0, -z1);
+                    _selecter.Deselect(ref _selectedChecker);
                     return;
                 }
 
-                _checkers[x2, z2] = _selectedChecker;
-                _checkers[x1, z1] = null;
-                _selectedChecker.gameObject.transform.position = new Vector3(_endDragPosition.x, 0, -_endDragPosition.y);
+            _checkers[x2, z2] = _selectedChecker;
+            _checkers[x1, z1] = null;
+            _mover.VisualTransition(_selectedChecker, x2, z2);
 
-                EndTurn();
+                EndTurn(x2,z2);
                
             }
-            else
-            {
-                _selectedChecker.gameObject.transform.position = new Vector3(_startDragPosition.x, 0, -_startDragPosition.y);
-                Deselect();
-                return;
-            }
-
-
+        else
+        {
+            _mover.VisualTransition(_selectedChecker, x1, z1);
+            _selecter.Deselect(ref _selectedChecker);
+             return;
         }
-
-
-
     }
 
 
 
-    private void EndTurn()
+    private void EndTurn(int x2,int z2)
     {
       
-        if (_selectedChecker != null)
+        if (_selectedChecker!=null)
         {
-            if (_selectedChecker.IsWhite && _endDragPosition.x == 7)
+            if (_selectedChecker.IsWhite && x2 == 7)
             {
                 _selectedChecker.BecomeKing();
             }
-            else if (!_selectedChecker.IsWhite && _endDragPosition.x == 0)
+            else if (!_selectedChecker.IsWhite && x2 == 0)
             {
                 _selectedChecker.BecomeKing();
             }
         }
-        Deselect();
+        _selecter.Deselect(ref _selectedChecker);
 
-        if (SearchForPossibleKills((int)_endDragPosition.x, (int)_endDragPosition.y).Count != 0 && _hasKilled)
+        if (SearchForPossibleKills(x2, z2).Count != 0 && _hasKilled)
             return;
 
         _hasKilled = false;
         _isWhiteTurn = !_isWhiteTurn;
         
-    }
-
-    private void RecordMousePosition()
-    {
-        if (Camera.main)
-        {
-            RaycastHit hit;
-            float rayLength = 25.0f;
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, rayLength, LayerMask.GetMask("Board")))
-            {
-                _mouseDownPosition.x = (int)(hit.point.x + _boardOffset.x);
-                _mouseDownPosition.y = (int)(Math.Abs(hit.point.z) + _boardOffset.z);
-
-            }
-            else
-            {
-                _mouseDownPosition.x = -1;
-                _mouseDownPosition.y = -1;
-            }
-            
-
-        }
-    }
-
-    private void SelectChecker(int x, int z)
-    {
-        if (x < 0 || x > _checkers.GetLength(0) || z < 0 || z > _checkers.GetLength(1))
-            return;
-
-        Checker selectedChecker = _checkers[x, z];
-        if (selectedChecker != null && selectedChecker.IsWhite == _isWhiteTurn)
-        {
-            if (_forcedToMoveCheckers.Count == 0)
-            {
-                _selectedChecker = selectedChecker;
-                _startDragPosition = _mouseDownPosition;
-            }
-            else
-            {
-                foreach (var item in _forcedToMoveCheckers)
-                {
-                    if (selectedChecker == item)
-                    {
-                        _selectedChecker = selectedChecker;
-                        _startDragPosition = _mouseDownPosition;
-                        break;
-                    }
-                }
-               
-            }
-
-
-        }
-
-    }
-
-    private void Deselect()
-    {
-        _startDragPosition = Vector2.zero - Vector2.one;
-        _selectedChecker = null;
-    }
-
-    private void UprageCheckDragPosition(Checker checker)
-    {
-        RaycastHit hit;
-        float rayLength = 25.0f;
-        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, rayLength, LayerMask.GetMask("Board")))
-            checker.transform.position = hit.point + Vector3.up;
     }
 
     private List<Checker> SearchForPossibleKills()

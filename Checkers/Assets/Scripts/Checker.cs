@@ -5,6 +5,7 @@ using UnityEngine;
 
 
 
+
 public class Checker : MonoBehaviour
 {
     private bool _isSimple;
@@ -40,6 +41,7 @@ public class Checker : MonoBehaviour
                     return true;
                 else
                     return false;
+
             if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _simplebeatDelta))
             {
                 Checker checkerToDelete = board[(x1 + x2) / 2, (z1 + z2) / 2];
@@ -48,37 +50,38 @@ public class Checker : MonoBehaviour
                     return true;
                 }
             }
+
         }
         if (_isKing)
         {
-              List<Checker> checkersBetweenKingPositions = new List<Checker>();
+            List<Checker> checkersBetweenKingPositions = new List<Checker>();
             if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, Mathf.Abs(x2 - x1)))
             {
                 Vector2 start = new Vector2(x1, z1);
                 Vector2 end = new Vector2(x2, z2);
                 Vector2 direction = (start - end).normalized;
-                //Направление с учетом расположения осей и доски
-                Vector2 trueDiretion = new Vector2(-1 * direction.x / Mathf.Abs(direction.x), -1 * direction.y / Mathf.Abs(direction.y));
+                //Направление с учетом рапсположения осей и доски
+                Vector2Int trueDiretion = new Vector2Int((int)(-1 * direction.x / Mathf.Abs(direction.x)), (int)(-1 * direction.y / Mathf.Abs(direction.y)));
 
                 int stepX, stepZ;
                 int stepCounter = 0;
-                stepX = x1 + (int)trueDiretion.x;
-                stepZ = z1 + (int)trueDiretion.y;
+                stepX = x1 + trueDiretion.x;
+                stepZ = z1 + trueDiretion.y;
 
-                while (stepCounter!= Mathf.Abs(x2-x1))
+                while (stepCounter != Mathf.Abs(x2 - x1))
                 {
-                    if(board[stepX,stepZ] != null)
+                    if (board[stepX, stepZ] != null)
                     {
                         checkersBetweenKingPositions.Add(board[stepX, stepZ]);
                     }
-                    stepX += (int)trueDiretion.x;
-                    stepZ += (int)trueDiretion.y;
+                    stepX += trueDiretion.x;
+                    stepZ += trueDiretion.y;
                     stepCounter++;
                 }
-                
+
                 if (checkersBetweenKingPositions.Count == 0)
                     return true;
-                else if (checkersBetweenKingPositions.Count==1 && checkersBetweenKingPositions.All(x=>x.IsWhite !=_isWhite) )
+                else if (checkersBetweenKingPositions.Count == 1 && checkersBetweenKingPositions.All(x => x.IsWhite != _isWhite))
                 {
                     return true;
                 }
@@ -133,27 +136,27 @@ public class Checker : MonoBehaviour
             int steptsToUpAndLeft = stepsToUp < stepsToLeft ? stepsToUp : stepsToLeft;
             int steptsToBottomAndRight = stepsToBottom < stepsToRight ? stepsToBottom : stepsToRight;
 
-            Vector3 leftBottomStep = new Vector3(-1, 0, -1);
-            Vector3 leftUpStep = new Vector3(1, 0, -1);
-            Vector3 rightBottomStep = new Vector3(-1, 0, 1);
-            Vector3 rightUpStep = new Vector3(1, 0, 1);
+            Vector3Int leftBottomStep = new Vector3Int(-1, 0, -1);
+            Vector3Int leftUpStep = new Vector3Int(1, 0, -1);
+            Vector3Int rightBottomStep = new Vector3Int(-1, 0, 1);
+            Vector3Int rightUpStep = new Vector3Int(1, 0, 1);
 
 
             if (!CheckDiagonal(board, x1, z1, stepsToUpAndRight, rightUpStep) && !CheckDiagonal(board, x1, z1, stepsToBottomAndLeft, leftBottomStep)
-                &&!CheckDiagonal(board,x1,z1,steptsToBottomAndRight,rightBottomStep) && !CheckDiagonal(board,x1,z1, steptsToUpAndLeft,leftUpStep))
+                && !CheckDiagonal(board, x1, z1, steptsToBottomAndRight, rightBottomStep) && !CheckDiagonal(board, x1, z1, steptsToUpAndLeft, leftUpStep))
                 return false;
             else
                 return true;
-           
+
 
         }
-        
+
 
 
         return false;
     }
 
-    private bool CheckDiagonal(Checker[,]board,int x1,int z1,int stepsToDiagonalEnd,Vector3 directionStep)
+    private bool CheckDiagonal(Checker[,] board, int x1, int z1, int stepsToDiagonalEnd, Vector3Int directionStep)
     {
         int stepX = x1;
         int stepZ = z1;
@@ -166,20 +169,20 @@ public class Checker : MonoBehaviour
                 hasSameColor = true;
             if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != _isWhite)
             {
-                int jx = stepX + (int)directionStep.x;
-                int jz = stepZ + (int)directionStep.z;
+                int jx = stepX + directionStep.x;
+                int jz = stepZ + directionStep.z;
                 for (int j = i; j < stepsToDiagonalEnd; j++)
                 {
-                    if (board[stepX + (int)directionStep.x, stepZ + (int)directionStep.z] != null)
+                    if (board[stepX + directionStep.x, stepZ + directionStep.z] != null)
                         return false;
                     if (board[jx, jz] == null && !hasSameColor)
                         return true;
-                    jx+= (int)directionStep.x;
-                    jz+= (int)directionStep.z;
+                    jx += directionStep.x;
+                    jz += directionStep.z;
                 }
             }
-            stepX+= (int)directionStep.x;
-            stepZ+= (int)directionStep.z;
+            stepX += directionStep.x;
+            stepZ += directionStep.z;
 
         }
         return false;
@@ -191,3 +194,4 @@ public class Checker : MonoBehaviour
         transform.rotation = Quaternion.Euler(-270, 0, 0);
     }
 }
+
