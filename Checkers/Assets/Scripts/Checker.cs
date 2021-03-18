@@ -7,10 +7,10 @@ using UnityEngine;
 
 public class Checker : MonoBehaviour
 {
-    private bool _isSimple = true;
-    private bool _isKing = false;
-    private const int _stepDelta = 1;
-    private const int _beatDelta = 2;
+    private bool _isSimple;
+    private bool _isKing;
+    private const int _simplestepDelta = 1;
+    private const int _simplebeatDelta = 2;
     [SerializeField] private bool _isWhite;
 
     public bool IsSimple => _isSimple;
@@ -19,13 +19,11 @@ public class Checker : MonoBehaviour
 
     public bool IsWhite => _isWhite;
 
-    public int StepDelta => _stepDelta;
-
-    public int BeatDelta => _beatDelta;
 
     public Checker()
     {
-        
+        _isSimple = true;
+        _isKing = false;
     }
     public bool IsAbleToMove(Checker[,] board, int x1, int z1, int x2, int z2, bool isWhiteturn)
     {
@@ -35,14 +33,14 @@ public class Checker : MonoBehaviour
         }
         if (_isSimple)
         {
-            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _stepDelta))
+            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _simplestepDelta))
                 if (_isWhite && x2 > x1)
                     return true;
                 else if (!_isWhite && x2 < x1)
                     return true;
                 else
                     return false;
-            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _beatDelta))
+            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _simplebeatDelta))
             {
                 Checker checkerToDelete = board[(x1 + x2) / 2, (z1 + z2) / 2];
                 if (checkerToDelete != null && checkerToDelete._isWhite != _isWhite)
@@ -108,7 +106,7 @@ public class Checker : MonoBehaviour
                 for (int z = 0; z < board.GetLength(1); z++)
                 {
 
-                    if (CheckActionCondition(x1, z1, x, z, isWhiteTurn, _beatDelta) && board[x, z] == null)
+                    if (CheckActionCondition(x1, z1, x, z, isWhiteTurn, _simplebeatDelta) && board[x, z] == null)
                     {
                         Checker checkerToDelete = board[(x1 + x) / 2, (z1 + z) / 2];
                         if (checkerToDelete != null && checkerToDelete.IsWhite != IsWhite)
@@ -135,9 +133,13 @@ public class Checker : MonoBehaviour
             int steptsToBottomAndRight = stepsToBottom < stepsToRight ? stepsToBottom : stepsToRight;
             int stepX = x1;
             int stepZ = z1;
+            bool hasSameColor = false;
+           
             
             for (int i = 0; i < stepsToUpAndRight; i++)
             {
+                if (i != 0 && (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite == _isWhite))
+                    hasSameColor = true;
                 if (board[stepX, stepZ] != null && board[stepX,stepZ].IsWhite != _isWhite)
                 {
                     int jx = stepX + 1;
@@ -146,7 +148,7 @@ public class Checker : MonoBehaviour
                     {
                         if (board[stepX + 1, stepZ + 1] != null)
                             return false;
-                        if (board[jx, jz] == null)
+                        if (board[jx, jz] == null && !hasSameColor)
                             return true;
                         jx++;
                         jz++;
@@ -154,12 +156,15 @@ public class Checker : MonoBehaviour
                 }
                 stepX++;
                 stepZ++;
+                
             }
-
+            hasSameColor = false;
             stepX = x1;
             stepZ = z1;
             for (int i = 0; i < stepsToBottomAndLeft; i++)
             {
+                if (i != 0 && (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite == _isWhite))
+                    hasSameColor = true;
                 if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != _isWhite)
                 {
                     int jx = stepX - 1;
@@ -168,7 +173,7 @@ public class Checker : MonoBehaviour
                     {
                         if (board[stepX - 1, stepZ - 1] != null)
                             return false;
-                        if (board[jx, jz] == null)
+                        if (board[jx, jz] == null && !hasSameColor)
                             return true;
                         jx--;
                         jz--;
@@ -177,11 +182,14 @@ public class Checker : MonoBehaviour
                 stepX--;
                 stepZ--;
             }
+            hasSameColor = false;
             stepX = x1;
             stepZ = z1;
 
             for (int i = 0; i < steptsToUpAndLeft; i++)
             {
+                if (i != 0 && (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite == _isWhite))
+                    hasSameColor = true;
                 if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != _isWhite)
                 {
                     int jx = stepX + 1;
@@ -190,7 +198,7 @@ public class Checker : MonoBehaviour
                     {
                         if (board[stepX + 1, stepZ - 1] != null)
                             return false;
-                        if (board[jx, jz] == null)
+                        if (board[jx, jz] == null && !hasSameColor)
                             return true;
                         jx--;
                         jz--;
@@ -199,11 +207,14 @@ public class Checker : MonoBehaviour
                 stepX++;
                 stepZ--;
             }
+            hasSameColor = false;
             stepX = x1;
             stepZ = z1;
 
             for (int i = 0; i < steptsToBottomAndRight; i++)
             {
+                if (i != 0 && (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite == _isWhite))
+                    hasSameColor = true;
                 if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != _isWhite)
                 {
                     int jx = stepX - 1;
@@ -212,12 +223,13 @@ public class Checker : MonoBehaviour
                     {
                         if (board[stepX - 1, stepZ + 1] != null)
                             return false;
-                        if (board[jx, jz] == null)
+                        if (board[jx, jz] == null && !hasSameColor)
                             return true;
                         jx--;
                         jz++;
                     }
                 }
+                hasSameColor = false;
                 stepX--;
                 stepZ++;
             }

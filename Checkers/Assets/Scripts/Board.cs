@@ -122,6 +122,7 @@ public class Board : MonoBehaviour
     {
         foreach (var item in _forcedToMoveCheckers)
         {
+            
             var renderer = item.gameObject.GetComponent<Renderer>();
             renderer.sharedMaterial = material;
         }
@@ -178,6 +179,7 @@ public class Board : MonoBehaviour
 
             if (_selectedChecker.IsAbleToMove(_checkers, x1, z1, x2, z2, _isWhiteTurn))
             {
+                
                 if (Math.Abs(x1 - x2) == 2)
                 {
                     Checker checkerToDelete = _checkers[(x1 + x2) / 2, (z1 + z2) / 2];
