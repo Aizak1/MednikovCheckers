@@ -127,117 +127,61 @@ public class Checker : MonoBehaviour
             int stepsToRight = 7 - z1;
             int stepsToBottom = Mathf.Abs(0 - x1);
             int stepsToLeft = Mathf.Abs(0 - z1);
+
             int stepsToUpAndRight = stepsToUp < stepsToRight ? stepsToUp : stepsToRight;
             int stepsToBottomAndLeft = stepsToBottom < stepsToLeft ? stepsToBottom : stepsToLeft;
             int steptsToUpAndLeft = stepsToUp < stepsToLeft ? stepsToUp : stepsToLeft;
             int steptsToBottomAndRight = stepsToBottom < stepsToRight ? stepsToBottom : stepsToRight;
-            int stepX = x1;
-            int stepZ = z1;
-            bool hasSameColor = false;
+
+            Vector3 leftBottomStep = new Vector3(-1, 0, -1);
+            Vector3 leftUpStep = new Vector3(1, 0, -1);
+            Vector3 rightBottomStep = new Vector3(-1, 0, 1);
+            Vector3 rightUpStep = new Vector3(1, 0, 1);
+
+
+            if (!CheckDiagonal(board, x1, z1, stepsToUpAndRight, rightUpStep) && !CheckDiagonal(board, x1, z1, stepsToBottomAndLeft, leftBottomStep)
+                &&!CheckDiagonal(board,x1,z1,steptsToBottomAndRight,rightBottomStep) && !CheckDiagonal(board,x1,z1, steptsToUpAndLeft,leftUpStep))
+                return false;
+            else
+                return true;
            
-            
-            for (int i = 0; i < stepsToUpAndRight; i++)
-            {
-                if (i != 0 && (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite == _isWhite))
-                    hasSameColor = true;
-                if (board[stepX, stepZ] != null && board[stepX,stepZ].IsWhite != _isWhite)
-                {
-                    int jx = stepX + 1;
-                    int jz = stepZ + 1;
-                    for (int j = i; j < stepsToUpAndRight; j++)
-                    {
-                        if (board[stepX + 1, stepZ + 1] != null)
-                            return false;
-                        if (board[jx, jz] == null && !hasSameColor)
-                            return true;
-                        jx++;
-                        jz++;
-                    }
-                }
-                stepX++;
-                stepZ++;
-                
-            }
-            hasSameColor = false;
-            stepX = x1;
-            stepZ = z1;
-            for (int i = 0; i < stepsToBottomAndLeft; i++)
-            {
-                if (i != 0 && (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite == _isWhite))
-                    hasSameColor = true;
-                if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != _isWhite)
-                {
-                    int jx = stepX - 1;
-                    int jz = stepZ - 1;
-                    for (int j = i; j < stepsToBottomAndLeft; j++)
-                    {
-                        if (board[stepX - 1, stepZ - 1] != null)
-                            return false;
-                        if (board[jx, jz] == null && !hasSameColor)
-                            return true;
-                        jx--;
-                        jz--;
-                    }
-                }
-                stepX--;
-                stepZ--;
-            }
-            hasSameColor = false;
-            stepX = x1;
-            stepZ = z1;
-
-            for (int i = 0; i < steptsToUpAndLeft; i++)
-            {
-                if (i != 0 && (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite == _isWhite))
-                    hasSameColor = true;
-                if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != _isWhite)
-                {
-                    int jx = stepX + 1;
-                    int jz = stepZ - 1;
-                    for (int j = i; j < steptsToUpAndLeft; j++)
-                    {
-                        if (board[stepX + 1, stepZ - 1] != null)
-                            return false;
-                        if (board[jx, jz] == null && !hasSameColor)
-                            return true;
-                        jx--;
-                        jz--;
-                    }
-                }
-                stepX++;
-                stepZ--;
-            }
-            hasSameColor = false;
-            stepX = x1;
-            stepZ = z1;
-
-            for (int i = 0; i < steptsToBottomAndRight; i++)
-            {
-                if (i != 0 && (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite == _isWhite))
-                    hasSameColor = true;
-                if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != _isWhite)
-                {
-                    int jx = stepX - 1;
-                    int jz = stepZ + 1;
-                    for (int j = i; j < steptsToBottomAndRight; j++)
-                    {
-                        if (board[stepX - 1, stepZ + 1] != null)
-                            return false;
-                        if (board[jx, jz] == null && !hasSameColor)
-                            return true;
-                        jx--;
-                        jz++;
-                    }
-                }
-                hasSameColor = false;
-                stepX--;
-                stepZ++;
-            }
 
         }
         
 
 
+        return false;
+    }
+
+    private bool CheckDiagonal(Checker[,]board,int x1,int z1,int stepsToDiagonalEnd,Vector3 directionStep)
+    {
+        int stepX = x1;
+        int stepZ = z1;
+        bool hasSameColor = false;
+
+
+        for (int i = 0; i < stepsToDiagonalEnd; i++)
+        {
+            if (i != 0 && (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite == _isWhite))
+                hasSameColor = true;
+            if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != _isWhite)
+            {
+                int jx = stepX + (int)directionStep.x;
+                int jz = stepZ + (int)directionStep.z;
+                for (int j = i; j < stepsToDiagonalEnd; j++)
+                {
+                    if (board[stepX + (int)directionStep.x, stepZ + (int)directionStep.z] != null)
+                        return false;
+                    if (board[jx, jz] == null && !hasSameColor)
+                        return true;
+                    jx+= (int)directionStep.x;
+                    jz+= (int)directionStep.z;
+                }
+            }
+            stepX+= (int)directionStep.x;
+            stepZ+= (int)directionStep.z;
+
+        }
         return false;
     }
     public void BecomeKing()
