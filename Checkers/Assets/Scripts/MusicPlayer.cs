@@ -7,10 +7,7 @@ public class MusicPlayer : MonoBehaviour
     [SerializeField] private AudioClip[] _tracks;
     AudioSource _audioSource;
 
-    private void Awake()
-    {
-        DontDestroyOnLoad(gameObject);
-    }
+    
 
     void Start()
     {

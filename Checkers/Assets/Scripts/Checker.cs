@@ -1,9 +1,7 @@
-using System.Collections;
+п»їusing System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
-
 
 
 public class Checker : MonoBehaviour
@@ -60,22 +58,20 @@ public class Checker : MonoBehaviour
                 Vector2 start = new Vector2(x1, z1);
                 Vector2 end = new Vector2(x2, z2);
                 Vector2 direction = (start - end).normalized;
-                //Направление с учетом рапсположения осей и доски
+                //РЅР°РїСЂР°РІР»РµРЅРёРµ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ СЂР°СЃРїРѕР»РѕР¶РµРЅРёРµ РѕСЃРµР№ Рё РґРѕСЃРєРё
                 Vector2Int trueDiretion = new Vector2Int((int)(-1 * direction.x / Mathf.Abs(direction.x)), (int)(-1 * direction.y / Mathf.Abs(direction.y)));
-
-                int stepX, stepZ;
+                Vector2Int step = new Vector2Int(x1 + trueDiretion.x, z1 + trueDiretion.y);
+                
                 int stepCounter = 0;
-                stepX = x1 + trueDiretion.x;
-                stepZ = z1 + trueDiretion.y;
+               
 
                 while (stepCounter != Mathf.Abs(x2 - x1))
                 {
-                    if (board[stepX, stepZ] != null)
+                    if (board[step.x, step.y] != null)
                     {
-                        checkersBetweenKingPositions.Add(board[stepX, stepZ]);
+                        checkersBetweenKingPositions.Add(board[step.x, step.y]);
                     }
-                    stepX += trueDiretion.x;
-                    stepZ += trueDiretion.y;
+                    step += trueDiretion;
                     stepCounter++;
                 }
 
@@ -194,4 +190,3 @@ public class Checker : MonoBehaviour
         transform.rotation = Quaternion.Euler(-270, 0, 0);
     }
 }
-

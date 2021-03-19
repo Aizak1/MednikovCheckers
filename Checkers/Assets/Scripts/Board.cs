@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,9 +68,9 @@ public class Board : MonoBehaviour
 
     }
 
-    private void GenerateChecker(GameObject prefab,int x, int z)
+    private void GenerateChecker(GameObject prefab, int x, int z)
     {
-        GameObject checkerGameObject = Instantiate(prefab, new Vector3( x, 0, - z), Quaternion.Euler(-90f, 0, 0));
+        GameObject checkerGameObject = Instantiate(prefab, new Vector3(x, 0, -z), Quaternion.Euler(-90f, 0, 0));
         Checker checker = checkerGameObject.GetComponent<Checker>();
         _checkers[x, z] = checker;
 
@@ -104,7 +104,7 @@ public class Board : MonoBehaviour
                 ChangeHighlightState(_materialToHighlightForces);
             }
 
-            if(!_validator.OutOfBounds(_checkers, mouseDownPosition.x, mouseDownPosition.y))
+            if (!_validator.OutOfBounds(_checkers, mouseDownPosition.x, mouseDownPosition.y))
             {
                 var cell = _selecter.PickACell(_checkers, mouseDownPosition.x, mouseDownPosition.y);
 
@@ -114,11 +114,11 @@ public class Board : MonoBehaviour
                     _selectionPosition = new Vector2Int(mouseDownPosition.x, mouseDownPosition.y);
                 }
             }
-           
+
         }
 
 
-        if (_selectedChecker!=null)
+        if (_selectedChecker != null)
         {
             _mover.UprageCheckDragPosition(_selectedChecker);
         }
@@ -127,7 +127,7 @@ public class Board : MonoBehaviour
         {
             ChangeHighlightState(_initialMaterial);
             MakeTurn(_selectionPosition.x, _selectionPosition.y, mouseDownPosition.x, mouseDownPosition.y);
-            
+
 
         }
         if (_gameState == GameState.Started)
@@ -141,7 +141,7 @@ public class Board : MonoBehaviour
     {
         foreach (var item in _forcedToMoveCheckers)
         {
-            
+
             var renderer = item.gameObject.GetComponent<Renderer>();
             renderer.sharedMaterial = material;
         }
@@ -183,9 +183,9 @@ public class Board : MonoBehaviour
 
     private void MakeTurn(int x1, int z1, int x2, int z2)
     {
-        if (_selectedChecker==null)
-             return;
-        
+        if (_selectedChecker == null)
+            return;
+
         if (_validator.OutOfBounds(_checkers, x2, z2))
         {
             if (_selectedChecker != null)
@@ -194,78 +194,78 @@ public class Board : MonoBehaviour
             }
             _selecter.Deselect(ref _selectedChecker);
             return;
-        } 
+        }
 
-        
-            if (_selectedChecker.IsAbleToMove(_checkers, x1, z1, x2, z2, _isWhiteTurn))
+
+        if (_selectedChecker.IsAbleToMove(_checkers, x1, z1, x2, z2, _isWhiteTurn))
+        {
+
+            if (Math.Abs(x1 - x2) == 2)
             {
-                
-               if (Math.Abs(x1 - x2) == 2)
-               {
-                    Checker checkerToDelete = _checkers[(x1 + x2) / 2, (z1 + z2) / 2];
+                Checker checkerToDelete = _checkers[(x1 + x2) / 2, (z1 + z2) / 2];
+                if (checkerToDelete != null)
+                {
+                    _checkers[(x1 + x2) / 2, (z1 + z2) / 2] = null;
+                    Destroy(checkerToDelete.gameObject);
+                    _hasKilled = true;
+                }
+            }
+            if (Math.Abs(x1 - x2) > 2)
+            {
+                Vector2 start = new Vector2(x1, z1);
+                Vector2 end = new Vector2(x2, z2);
+                Vector2 direction = (start - end).normalized;
+                //РќР°РїСЂР°РІР»РµРЅРёРµ СЃ СѓС‡РµС‚РѕРј СЂР°СЃРїРѕР»РѕР¶РµРЅРёСЏ РѕСЃРµР№ Рё РґРѕСЃРєРё
+                Vector2 trueDiretion = new Vector2(-1 * direction.x / Mathf.Abs(direction.x), -1 * direction.y / Mathf.Abs(direction.y));
+                int stepX, stepZ;
+                int stepCounter = 0;
+                stepX = x1 + (int)trueDiretion.x;
+                stepZ = z1 + (int)trueDiretion.y;
+                while (stepCounter != Mathf.Abs(x2 - x1))
+                {
+                    Checker checkerToDelete = _checkers[stepX, stepZ];
                     if (checkerToDelete != null)
                     {
-                        _checkers[(x1 + x2) / 2, (z1 + z2) / 2] = null;
+                        _checkers[stepX, stepZ] = null;
                         Destroy(checkerToDelete.gameObject);
                         _hasKilled = true;
+                        break;
                     }
-                }
-                if (Math.Abs(x1 - x2) > 2)
-                {
-                    Vector2 start = new Vector2(x1, z1);
-                    Vector2 end = new Vector2(x2, z2);
-                    Vector2 direction = (start - end).normalized;
-                    //Направление с учетом расположения осей и доски
-                    Vector2 trueDiretion = new Vector2(-1 * direction.x / Mathf.Abs(direction.x), -1 * direction.y / Mathf.Abs(direction.y));
-                    int stepX, stepZ;
-                    int stepCounter = 0;
-                    stepX = x1 + (int)trueDiretion.x;
-                    stepZ = z1 + (int)trueDiretion.y;
-                    while (stepCounter != Mathf.Abs(x2 - x1))
-                    {
-                        Checker checkerToDelete = _checkers[stepX, stepZ];
-                        if (checkerToDelete != null)
-                        {
-                            _checkers[stepX, stepZ] = null;
-                            Destroy(checkerToDelete.gameObject);
-                            _hasKilled = true;
-                            break;
-                        }
-                        stepX += (int)trueDiretion.x;
-                        stepZ += (int)trueDiretion.y;
-                        stepCounter++;
-                    }
-                   
+                    stepX += (int)trueDiretion.x;
+                    stepZ += (int)trueDiretion.y;
+                    stepCounter++;
                 }
 
-                if (_forcedToMoveCheckers.Count != 0 && !_hasKilled)
-                {
-                    _selectedChecker.gameObject.transform.position = new Vector3(x1, 0, -z1);
-                    _selecter.Deselect(ref _selectedChecker);
-                    return;
-                }
+            }
+
+            if (_forcedToMoveCheckers.Count != 0 && !_hasKilled)
+            {
+                _selectedChecker.gameObject.transform.position = new Vector3(x1, 0, -z1);
+                _selecter.Deselect(ref _selectedChecker);
+                return;
+            }
 
             _checkers[x2, z2] = _selectedChecker;
             _checkers[x1, z1] = null;
             _mover.Move(_selectedChecker, x2, z2);
 
-                EndTurn(x2,z2);
-               
-            }
+            EndTurn(x2, z2);
+
+        }
         else
         {
             _mover.Move(_selectedChecker, x1, z1);
             _selecter.Deselect(ref _selectedChecker);
-             return;
+            return;
         }
     }
 
 
 
-    private void EndTurn(int x2,int z2)
+    private void EndTurn(int x2, int z2)
     {
-      
-        if (_selectedChecker!=null)
+
+        if (_selectedChecker != null)
         {
             if (_selectedChecker.IsWhite && x2 == 7)
             {
@@ -288,7 +288,7 @@ public class Board : MonoBehaviour
         _history.AddRecord(_selectionPosition.x, _selectionPosition.y, x2, z2, _isWhiteTurn);
         _hasKilled = false;
         _isWhiteTurn = !_isWhiteTurn;
-        
+
     }
 
     private List<Checker> SearchForPossibleKills()
