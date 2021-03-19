@@ -95,3 +95,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _isWhite: 1
+  _vfx: {fileID: 366306233314132657, guid: 8e56178cc11ddbf4288fa434c23c04f2, type: 3}

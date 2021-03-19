@@ -8,6 +8,7 @@ public class Board : MonoBehaviour
 {
     [SerializeField] private GameObject _whitePrefab;
     [SerializeField] private GameObject _blackPrefab;
+    [SerializeField] private GameObject _vfx;
     [SerializeField] private Material _materialToHighlightForces;
     private Material _initialMaterial;
 
@@ -192,12 +193,11 @@ public class Board : MonoBehaviour
 
             if (Math.Abs(x1 - x2) == 2)
             {
-                Checker checkerToDelete = _checkers[(x1 + x2) / 2, (z1 + z2) / 2];
+                Vector2Int deletePosition = new Vector2Int((x1 + x2) / 2, (z1 + z2) / 2);
+                Checker checkerToDelete = _checkers[deletePosition.x, deletePosition.y];
                 if (checkerToDelete != null)
                 {
-                    _checkers[(x1 + x2) / 2, (z1 + z2) / 2] = null;
-                    Destroy(checkerToDelete.gameObject);
-                    _hasKilled = true;
+                    RemoveChecker(deletePosition, checkerToDelete);
                 }
             }
             if (Math.Abs(x1 - x2) > 2)
@@ -206,23 +206,19 @@ public class Board : MonoBehaviour
                 Vector2 end = new Vector2(x2, z2);
                 Vector2 direction = (start - end).normalized;
                 //Направление с учетом расположения осей и доски
-                Vector2 trueDiretion = new Vector2(-1 * direction.x / Mathf.Abs(direction.x), -1 * direction.y / Mathf.Abs(direction.y));
-                int stepX, stepZ;
+                Vector2Int trueDiretion = new Vector2Int((int)(-1 * direction.x / Mathf.Abs(direction.x)), (int)(-1 * direction.y / Mathf.Abs(direction.y)));
+                Vector2Int step = new Vector2Int(x1 + trueDiretion.x, z1 + trueDiretion.y);
                 int stepCounter = 0;
-                stepX = x1 + (int)trueDiretion.x;
-                stepZ = z1 + (int)trueDiretion.y;
                 while (stepCounter != Mathf.Abs(x2 - x1))
                 {
-                    Checker checkerToDelete = _checkers[stepX, stepZ];
+                    
+                    Checker checkerToDelete = _checkers[step.x, step.y];
                     if (checkerToDelete != null)
                     {
-                        _checkers[stepX, stepZ] = null;
-                        Destroy(checkerToDelete.gameObject);
-                        _hasKilled = true;
+                        RemoveChecker(step, checkerToDelete);
                         break;
                     }
-                    stepX += (int)trueDiretion.x;
-                    stepZ += (int)trueDiretion.y;
+                    step += trueDiretion;
                     stepCounter++;
                 }
 
@@ -251,7 +247,13 @@ public class Board : MonoBehaviour
         }
     }
 
-
+    private void RemoveChecker(Vector2Int deletePosition, Checker checkerToDelete)
+    {
+        _checkers[deletePosition.x, deletePosition.y] = null;
+        Destroy(checkerToDelete.gameObject);
+        _hasKilled = true;
+        Instantiate(_vfx, new Vector3(deletePosition.x, 0, -deletePosition.y), Quaternion.identity);
+    }
 
     private void EndTurn(int x2, int z2)
     {

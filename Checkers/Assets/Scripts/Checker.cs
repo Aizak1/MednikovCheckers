@@ -11,6 +11,7 @@ public class Checker : MonoBehaviour
     private const int _simplestepDelta = 1;
     private const int _simplebeatDelta = 2;
     [SerializeField] private bool _isWhite;
+    
 
     public bool IsSimple => _isSimple;
 
@@ -189,4 +190,5 @@ public class Checker : MonoBehaviour
         _isKing = true;
         transform.rotation = Quaternion.Euler(-270, 0, 0);
     }
+    
 }
