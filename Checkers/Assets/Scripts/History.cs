@@ -18,10 +18,10 @@ public class History : MonoBehaviour
         string lettersOnBoard = "ABCDEFGH";
         if (isWhiteTurn)
         {
-            _fieldText.text = $" W - {lettersOnBoard[z1]}{x1} : {lettersOnBoard[z2]}{x2} \n" +  _fieldText.text;
+            _fieldText.text = $" W - {lettersOnBoard[z1]}{x1+1} : {lettersOnBoard[z2]}{x2+1} \n" +  _fieldText.text;
         }
         else
-            _fieldText.text =  $" B - {lettersOnBoard[z1]}{x1} : {lettersOnBoard[z2]}{x2} \n" + _fieldText.text;
+            _fieldText.text =  $" B - {lettersOnBoard[z1]}{x1+1} : {lettersOnBoard[z2]}{x2+1} \n" + _fieldText.text;
         
 
     }

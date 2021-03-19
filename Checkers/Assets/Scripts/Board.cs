@@ -4,19 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-
-public enum GameState
-{
-    Started,
-    Ended
-}
-public enum ResultOfGame
-{
-    WhiteWins,
-    BlackWins,
-    Draw
-}
-
 public class Board : MonoBehaviour
 {
     [SerializeField] private GameObject _whitePrefab;
@@ -36,6 +23,7 @@ public class Board : MonoBehaviour
     private RuleValidator _validator;
     private Mover _mover;
     private History _history;
+    private SFX _sfx;
 
     private bool _isWhiteTurn;
     private static int _stepsWithOutKills = 0;
@@ -87,6 +75,7 @@ public class Board : MonoBehaviour
         _selecter = GetComponent<Selecter>();
         _mover = GetComponent<Mover>();
         _history = FindObjectOfType<History>();
+        _sfx = FindObjectOfType<SFX>();
         _initialMaterial = _whitePrefab.GetComponent<Renderer>().sharedMaterial;
         _gameState = GameState.Started;
 
@@ -112,6 +101,7 @@ public class Board : MonoBehaviour
                 {
                     _selectedChecker = _selecter.SelectChecker(cell);
                     _selectionPosition = new Vector2Int(mouseDownPosition.x, mouseDownPosition.y);
+                    _sfx.PlayPicKSound();
                 }
             }
 
@@ -248,6 +238,7 @@ public class Board : MonoBehaviour
             _checkers[x2, z2] = _selectedChecker;
             _checkers[x1, z1] = null;
             _mover.Move(_selectedChecker, x2, z2);
+           
 
             EndTurn(x2, z2);
 
@@ -278,9 +269,16 @@ public class Board : MonoBehaviour
         }
         _selecter.Deselect(ref _selectedChecker);
         if (_hasKilled)
+        {
+            _sfx.PlayKillSound();
             _stepsWithOutKills = 0;
+        }
         else
+        {
+            _sfx.PlayDropSound();
             _stepsWithOutKills++;
+        }
+          
 
         if (SearchForPossibleKills(x2, z2).Count != 0 && _hasKilled)
             return;
