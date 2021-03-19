@@ -28,7 +28,6 @@ public class Board : MonoBehaviour
     private Checker[,] _checkers = new Checker[8, 8];
     private List<Checker> _forcedToMoveCheckers;
 
-    private Vector3 _initialCoordinates = Vector3.zero;
 
     private Checker _selectedChecker;
     private Vector2Int _selectionPosition;
@@ -36,6 +35,7 @@ public class Board : MonoBehaviour
     private Selecter _selecter;
     private RuleValidator _validator;
     private Mover _mover;
+    private History _history;
 
     private bool _isWhiteTurn;
     private static int _stepsWithOutKills = 0;
@@ -49,29 +49,29 @@ public class Board : MonoBehaviour
     {
         for (int x = 0; x < 8; x++)
         {
-            int initialCoordinate;
+            int initialZCoordinate;
             if (x % 2 == 0)
-                initialCoordinate = 0;
+                initialZCoordinate = 0;
             else
-                initialCoordinate = 1;
+                initialZCoordinate = 1;
 
             if (!(x > 2 && x < 5))
-                for (int z = initialCoordinate; z < 8; z += 2)
+                for (int z = initialZCoordinate; z < 8; z += 2)
                 {
                     if (x >= 0 && x < 3)
-                        GenerateChecker(_whitePrefab, _initialCoordinates, x, z);
+                        GenerateChecker(_whitePrefab, x, z);
                     else
-                        GenerateChecker(_blackPrefab, _initialCoordinates, x, z);
+                        GenerateChecker(_blackPrefab, x, z);
                 }
 
         }
 
     }
 
-    private void GenerateChecker(GameObject prefab, Vector3 position, int x, int z)
+    private void GenerateChecker(GameObject prefab,int x, int z)
     {
-        GameObject piece = Instantiate(prefab, new Vector3(position.x + x, position.y, position.z - z), Quaternion.Euler(-89.98f, 0, 0));
-        Checker checker = piece.GetComponent<Checker>();
+        GameObject checkerGameObject = Instantiate(prefab, new Vector3( x, 0, - z), Quaternion.Euler(-90f, 0, 0));
+        Checker checker = checkerGameObject.GetComponent<Checker>();
         _checkers[x, z] = checker;
 
     }
@@ -86,6 +86,7 @@ public class Board : MonoBehaviour
         _forcedToMoveCheckers = new List<Checker>();
         _selecter = GetComponent<Selecter>();
         _mover = GetComponent<Mover>();
+        _history = FindObjectOfType<History>();
         _initialMaterial = _whitePrefab.GetComponent<Renderer>().sharedMaterial;
         _gameState = GameState.Started;
 
@@ -189,7 +190,7 @@ public class Board : MonoBehaviour
         {
             if (_selectedChecker != null)
             {
-                _mover.VisualTransition(_selectedChecker, x1, z1);
+                _mover.Move(_selectedChecker, x1, z1);
             }
             _selecter.Deselect(ref _selectedChecker);
             return;
@@ -246,14 +247,14 @@ public class Board : MonoBehaviour
 
             _checkers[x2, z2] = _selectedChecker;
             _checkers[x1, z1] = null;
-            _mover.VisualTransition(_selectedChecker, x2, z2);
+            _mover.Move(_selectedChecker, x2, z2);
 
                 EndTurn(x2,z2);
                
             }
         else
         {
-            _mover.VisualTransition(_selectedChecker, x1, z1);
+            _mover.Move(_selectedChecker, x1, z1);
             _selecter.Deselect(ref _selectedChecker);
              return;
         }
@@ -283,7 +284,8 @@ public class Board : MonoBehaviour
 
         if (SearchForPossibleKills(x2, z2).Count != 0 && _hasKilled)
             return;
-       
+
+        _history.AddRecord(_selectionPosition.x, _selectionPosition.y, x2, z2, _isWhiteTurn);
         _hasKilled = false;
         _isWhiteTurn = !_isWhiteTurn;
         

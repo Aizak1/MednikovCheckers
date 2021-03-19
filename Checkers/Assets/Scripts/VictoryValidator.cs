@@ -7,17 +7,17 @@ using UnityEngine.UI;
 public class VictoryValidator : MonoBehaviour
 {
     // Start is called before the first frame update
-    [SerializeField]Canvas _endMenu;
-    [SerializeField] Text _text;
-    Board board;
-    void Start()
+    [SerializeField] private Canvas _endMenu;
+    [SerializeField] private Text _text;
+    private Board board;
+    private void Start()
     {
         board = FindObjectOfType<Board>();
        
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if(board.GetGameState == GameState.Ended)
         {

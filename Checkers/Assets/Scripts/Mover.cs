@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Mover:MonoBehaviour
 {
-    public void VisualTransition(Checker checker,int destinationX,int destinationZ)
+    public void Move(Checker checker,int destinationX,int destinationZ)
     {
         checker.gameObject.transform.position = new Vector3(destinationX, 0, -destinationZ);
     }
