@@ -9,10 +9,10 @@ public class VictoryValidator : MonoBehaviour
     // Start is called before the first frame update
     [SerializeField] private Canvas _endMenu;
     [SerializeField] private Text _text;
-    private Board board;
+    private MainLogic board;
     private void Start()
     {
-        board = FindObjectOfType<Board>();
+        board = FindObjectOfType<MainLogic>();
        
     }
 

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class Board : MonoBehaviour
+public class MainLogic : MonoBehaviour
 {
     [SerializeField] private GameObject _whitePrefab;
     [SerializeField] private GameObject _blackPrefab;
@@ -13,7 +13,7 @@ public class Board : MonoBehaviour
     private Material _initialMaterial;
 
     private GameState _gameState;
-    private Checker[,] _checkers = new Checker[8, 8];
+    private Checker[,] _board = new Checker[8, 8];
     private List<Checker> _forcedToMoveCheckers;
 
 
@@ -61,7 +61,7 @@ public class Board : MonoBehaviour
     {
         GameObject checkerGameObject = Instantiate(prefab, new Vector3(x, 0, -z), Quaternion.Euler(-90f, 0, 0));
         Checker checker = checkerGameObject.GetComponent<Checker>();
-        _checkers[x, z] = checker;
+        _board[x, z] = checker;
 
     }
 
@@ -94,9 +94,9 @@ public class Board : MonoBehaviour
                 ChangeHighlightState(_materialToHighlightForces);
             }
 
-            if (!_validator.OutOfBounds(_checkers, mouseDownPosition.x, mouseDownPosition.y))
+            if (!_validator.OutOfBounds(_board, mouseDownPosition.x, mouseDownPosition.y))
             {
-                var cell = _selecter.PickACell(_checkers, mouseDownPosition.x, mouseDownPosition.y);
+                var cell = _selecter.PickACell(_board, mouseDownPosition.x, mouseDownPosition.y);
 
                 if (_validator.SelectionValidate(cell, _isWhiteTurn, _forcedToMoveCheckers))
                 {
@@ -142,13 +142,13 @@ public class Board : MonoBehaviour
     {
         bool hasWhite = false;
         bool hasBlack = false;
-        for (int i = 0; i < _checkers.GetLength(0); i++)
+        for (int i = 0; i < _board.GetLength(0); i++)
         {
-            for (int j = 0; j < _checkers.GetLength(1); j++)
+            for (int j = 0; j < _board.GetLength(1); j++)
             {
-                if (_checkers[i, j] != null && _checkers[i, j].IsWhite)
+                if (_board[i, j] != null && _board[i, j].IsWhite)
                     hasWhite = true;
-                if (_checkers[i, j] != null && !_checkers[i, j].IsWhite)
+                if (_board[i, j] != null && !_board[i, j].IsWhite)
                     hasBlack = true;
 
             }
@@ -177,7 +177,7 @@ public class Board : MonoBehaviour
         if (_selectedChecker == null)
             return;
 
-        if (_validator.OutOfBounds(_checkers, x2, z2))
+        if (_validator.OutOfBounds(_board, x2, z2))
         {
             if (_selectedChecker != null)
             {
@@ -188,13 +188,13 @@ public class Board : MonoBehaviour
         }
 
 
-        if (_selectedChecker.IsAbleToMove(_checkers, x1, z1, x2, z2, _isWhiteTurn))
+        if (_selectedChecker.IsAbleToMove(_board, x1, z1, x2, z2, _isWhiteTurn))
         {
 
             if (Math.Abs(x1 - x2) == 2)
             {
                 Vector2Int deletePosition = new Vector2Int((x1 + x2) / 2, (z1 + z2) / 2);
-                Checker checkerToDelete = _checkers[deletePosition.x, deletePosition.y];
+                Checker checkerToDelete = _board[deletePosition.x, deletePosition.y];
                 if (checkerToDelete != null)
                 {
                     RemoveChecker(deletePosition, checkerToDelete);
@@ -212,7 +212,7 @@ public class Board : MonoBehaviour
                 while (stepCounter != Mathf.Abs(x2 - x1))
                 {
                     
-                    Checker checkerToDelete = _checkers[step.x, step.y];
+                    Checker checkerToDelete = _board[step.x, step.y];
                     if (checkerToDelete != null)
                     {
                         RemoveChecker(step, checkerToDelete);
@@ -231,8 +231,8 @@ public class Board : MonoBehaviour
                 return;
             }
 
-            _checkers[x2, z2] = _selectedChecker;
-            _checkers[x1, z1] = null;
+            _board[x2, z2] = _selectedChecker;
+            _board[x1, z1] = null;
             _mover.Move(_selectedChecker, x2, z2);
            
 
@@ -249,7 +249,7 @@ public class Board : MonoBehaviour
 
     private void RemoveChecker(Vector2Int deletePosition, Checker checkerToDelete)
     {
-        _checkers[deletePosition.x, deletePosition.y] = null;
+        _board[deletePosition.x, deletePosition.y] = null;
         Destroy(checkerToDelete.gameObject);
         _hasKilled = true;
         Instantiate(_vfx, new Vector3(deletePosition.x, 0, -deletePosition.y), Quaternion.identity);
@@ -294,14 +294,14 @@ public class Board : MonoBehaviour
     private List<Checker> SearchForPossibleKills()
     {
         _forcedToMoveCheckers = new List<Checker>();
-        for (int i = 0; i < _checkers.GetLength(0); i++)
+        for (int i = 0; i < _board.GetLength(0); i++)
         {
-            for (int j = 0; j < _checkers.GetLength(1); j++)
+            for (int j = 0; j < _board.GetLength(1); j++)
             {
-                if (_checkers[i, j] != null && _checkers[i, j].IsWhite == _isWhiteTurn)
+                if (_board[i, j] != null && _board[i, j].IsWhite == _isWhiteTurn)
                 {
-                    if (_checkers[i, j].IsForcedToMove(_checkers, i, j, _isWhiteTurn))
-                        _forcedToMoveCheckers.Add(_checkers[i, j]);
+                    if (_board[i, j].IsForcedToMove(_board, i, j, _isWhiteTurn))
+                        _forcedToMoveCheckers.Add(_board[i, j]);
                 }
             }
         }
@@ -311,9 +311,9 @@ public class Board : MonoBehaviour
     private List<Checker> SearchForPossibleKills(int x, int z)
     {
         _forcedToMoveCheckers = new List<Checker>();
-        if (_checkers[x, z].IsForcedToMove(_checkers, x, z, _isWhiteTurn))
+        if (_board[x, z].IsForcedToMove(_board, x, z, _isWhiteTurn))
         {
-            _forcedToMoveCheckers.Add(_checkers[x, z]);
+            _forcedToMoveCheckers.Add(_board[x, z]);
         }
         return _forcedToMoveCheckers;
     }
