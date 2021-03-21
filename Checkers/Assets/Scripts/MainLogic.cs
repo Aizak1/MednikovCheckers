@@ -107,7 +107,7 @@ public class MainLogic : MonoBehaviour
         {
 
             _hinter.ChangeHighlightState(_validator);
-            MakeTurn(_selectionPosition.x, _selectionPosition.y, mouseDownPosition.x, mouseDownPosition.y);
+            MakeTurn(_selectionPosition,mouseDownPosition);
             _hinter.ShowCurrentTurn(_isWhiteTurn);
         }
 
@@ -134,12 +134,12 @@ public class MainLogic : MonoBehaviour
             }
         }
 
-        if (hasBlack)
+        if (!hasWhite &&hasBlack)
         {
             Result = ResultOfGame.BlackWins;
             _gameState = GameState.Ended;
         }
-        if (hasWhite)
+        if (!hasBlack && hasWhite)
         {
             Result = ResultOfGame.WhiteWins;
             _gameState = GameState.Ended;
@@ -152,45 +152,43 @@ public class MainLogic : MonoBehaviour
 
     }
 
-    private void MakeTurn(int x1, int z1, int x2, int z2)
+    private void MakeTurn(Vector2Int start, Vector2Int final)
     {
         if (_selectedChecker == null)
             return;
 
-        if (_validator.OutOfBounds(_board, x2, z2))
+        if (_validator.OutOfBounds(_board, start.x, start.y))
         {
             if (_selectedChecker != null)
             {
-                _mover.Move(_selectedChecker, x1, z1);
+                _mover.Move(_selectedChecker, start);
             }
             _selecter.Deselect(ref _selectedChecker);
             return;
         }
 
 
-        if (_selectedChecker.IsAbleToMove(_board, x1, z1, x2, z2, _isWhiteTurn))
+        if (_selectedChecker.IsAbleToMove(_board,start,final, _isWhiteTurn))
         {
 
-            if (Math.Abs(x1 - x2) == 2)
+            if (Math.Abs(start.x - final.x) == 2)
             {
-                Vector2Int deletePosition = new Vector2Int((x1 + x2) / 2, (z1 + z2) / 2);
+                Vector2Int deletePosition = (start + final) / 2;
                 Checker checkerToDelete = _board[deletePosition.x, deletePosition.y];
                 if (checkerToDelete != null)
                 {
                     RemoveChecker(deletePosition, checkerToDelete);
                 }
             }
-            if (Math.Abs(x1 - x2) > 2)
+            if (Math.Abs(start.x - final.x) > 2)
             {
-                Vector2 start = new Vector2(x1, z1);
-                Vector2 end = new Vector2(x2, z2);
                 //Направление с учетом расположения осей и доски
-                Vector2 direction = (start - end).normalized;
+                Vector2 direction = ((Vector2)start - final).normalized;
                 //Генерируем направление с единичными координатами для построения шага 
                 Vector2Int trueDiretion = new Vector2Int((int)(-1 * direction.x / Mathf.Abs(direction.x)), (int)(-1 * direction.y / Mathf.Abs(direction.y)));
-                Vector2Int step = new Vector2Int(x1 + trueDiretion.x, z1 + trueDiretion.y);
+                Vector2Int step = start + trueDiretion;
                 int stepCounter = 0;
-                while (stepCounter != Mathf.Abs(x2 - x1))
+                while (stepCounter != Mathf.Abs(final.x - start.x))
                 {
                     
                     Checker checkerToDelete = _board[step.x, step.y];
@@ -207,22 +205,20 @@ public class MainLogic : MonoBehaviour
 
             if (_validator.ForcedToMoveCheckers.Count != 0 && !_hasKilled)
             {
-                _mover.Move(_selectedChecker, x1, z1);
+                _mover.Move(_selectedChecker,start);
                 _selecter.Deselect(ref _selectedChecker);
                 return;
             }
 
-            _board[x2, z2] = _selectedChecker;
-            _board[x1, z1] = null;
-            _mover.Move(_selectedChecker, x2, z2);
+            _board[final.x, final.y] = _selectedChecker;
+            _board[start.x, start.y] = null;
+            _mover.Move(_selectedChecker,final);
            
-
-            EndTurn(x2, z2);
-
+            EndTurn(final);
         }
         else
         {
-            _mover.Move(_selectedChecker, x1, z1);
+            _mover.Move(_selectedChecker, start);
             _selecter.Deselect(ref _selectedChecker);
             return;
         }
@@ -236,16 +232,16 @@ public class MainLogic : MonoBehaviour
         Instantiate(_vfx, new Vector3(deletePosition.x, 0, -deletePosition.y), Quaternion.identity);
     }
 
-    private void EndTurn(int x2, int z2)
+    private void EndTurn(Vector2Int final)
     {
 
         if (_selectedChecker != null)
         {
-            if (_selectedChecker.IsWhite && x2 == 7)
+            if (_selectedChecker.IsWhite && final.x == 7)
             {
                 _selectedChecker.BecomeKing();
             }
-            else if (!_selectedChecker.IsWhite && x2 == 0)
+            else if (!_selectedChecker.IsWhite && final.x == 0)
             {
                 _selectedChecker.BecomeKing();
             }
@@ -263,10 +259,10 @@ public class MainLogic : MonoBehaviour
         }
           
 
-        if (_validator.SearchForPossibleKills(_board,x2, z2,_isWhiteTurn).Count != 0 && _hasKilled)
+        if (_validator.SearchForPossibleKills(_board,final,_isWhiteTurn).Count != 0 && _hasKilled)
             return;
 
-        _history.AddRecord(_selectionPosition.x, _selectionPosition.y, x2, z2, _isWhiteTurn);
+        _history.AddRecord(_selectionPosition,final, _isWhiteTurn);
         _hasKilled = false;
         _isWhiteTurn = !_isWhiteTurn;
     }

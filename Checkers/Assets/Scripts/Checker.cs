@@ -21,26 +21,25 @@ public class Checker : MonoBehaviour
     {
         _isSimple = true;
     }
-    public bool IsAbleToMove(Checker[,] board, int x1, int z1, int x2, int z2, bool isWhiteturn)
+    public bool IsAbleToMove(Checker[,] board,Vector2Int start,Vector2Int final,bool isWhiteturn)
     {
-        if (board[x2, z2] != null)
+        if (board[final.x, final.y] != null)
         {
             return false;
         }
         if (_isSimple)
         {
             
-            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _simpleStepDelta))
-                if (_isWhite && x2 > x1)
-                    return true;
-                else if (!_isWhite && x2 < x1)
+            if (CheckActionCondition(start,final, isWhiteturn, _simpleStepDelta))
+                if (_isWhite && final.x > start.x || (!_isWhite && final.x < start.x))
                     return true;
                 else
                     return false;
 
-            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, __simpleBeatDelta))
+            if (CheckActionCondition(start,final, isWhiteturn, __simpleBeatDelta))
             {
-                Checker checkerToDelete = board[(x1 + x2) / 2, (z1 + z2) / 2];
+                Vector2Int deletePosition = (start + final) / 2;
+                Checker checkerToDelete = board[deletePosition.x, deletePosition.y];
                 if (checkerToDelete != null && checkerToDelete.IsWhite != IsWhite)
                 {
                     return true;
@@ -50,18 +49,15 @@ public class Checker : MonoBehaviour
         else
         {
             List<Checker> checkersBetweenKingPositions = new List<Checker>();
-            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, Mathf.Abs(x2 - x1)))
+            if (CheckActionCondition(start,final, isWhiteturn, Mathf.Abs(final.x - start.x)))
             {
-                Vector2 start = new Vector2(x1, z1);
-                Vector2 end = new Vector2(x2, z2);
                 //Из данного вектора используем знаки у координат
-                Vector2 direction = (start - end).normalized;
+                Vector2 direction = ((Vector2)start - final).normalized;
                 //Генерируем направление с единичными координатами для построения шага 
                 Vector2Int trueDiretion = new Vector2Int((int)(-1 * direction.x / Mathf.Abs(direction.x)), (int)(-1 * direction.y / Mathf.Abs(direction.y)));
-                Vector2Int step = new Vector2Int(x1 + trueDiretion.x, z1 + trueDiretion.y);
-                
+                Vector2Int step = start + trueDiretion;
                 int stepCounter = 0;
-                while (stepCounter != Mathf.Abs(x2 - x1))
+                while (stepCounter != Mathf.Abs(final.x - start.x))
                 {
                     if (board[step.x, step.y] != null)
                     {
@@ -85,12 +81,12 @@ public class Checker : MonoBehaviour
         return false;
     }
 
-    private bool CheckActionCondition(int x1, int z1, int x2, int z2, bool isWhiteTurn, int conditionDelta)
+    private bool CheckActionCondition(Vector2Int start,Vector2Int final,bool isWhiteTurn, int conditionDelta)
     {
-        return Mathf.Abs(x2 - x1) == conditionDelta && Mathf.Abs(z2 - z1) == conditionDelta && _isWhite == isWhiteTurn;
+        return Mathf.Abs(final.x - start.x) == conditionDelta && Mathf.Abs(final.y - start.y) == conditionDelta && _isWhite == isWhiteTurn;
     }
 
-    public bool IsForcedToMove(Checker[,] board, int x1, int z1, bool isWhiteTurn)
+    public bool IsForcedToMove(Checker[,] board, Vector2Int start,bool isWhiteTurn)
     {
         if (_isSimple)
         {
@@ -98,10 +94,11 @@ public class Checker : MonoBehaviour
             {
                 for (int z = 0; z < board.GetLength(1); z++)
                 {
-
-                    if (CheckActionCondition(x1, z1, x, z, isWhiteTurn, __simpleBeatDelta) && board[x, z] == null)
+                    Vector2Int final = new Vector2Int(x, z);
+                    if (CheckActionCondition(start,final,isWhiteTurn, __simpleBeatDelta) && board[x, z] == null)
                     {
-                        Checker checkerToDelete = board[(x1 + x) / 2, (z1 + z) / 2];
+                        Vector2Int deletePosition = (start + final) / 2;
+                        Checker checkerToDelete = board[deletePosition.x, deletePosition.y];
                         if (checkerToDelete != null && checkerToDelete.IsWhite != IsWhite)
                         {
                             return true;
@@ -112,24 +109,24 @@ public class Checker : MonoBehaviour
         }
         else
         {
-            int stepsToUp = 7 - x1;
-            int stepsToRight = 7 - z1;
-            int stepsToBottom = Mathf.Abs(0 - x1);
-            int stepsToLeft = Mathf.Abs(0 - z1);
+            int stepsToUp = 7 - start.x;
+            int stepsToRight = 7 - start.y;
+            int stepsToBottom = Mathf.Abs(0 - start.x);
+            int stepsToLeft = Mathf.Abs(0 - start.y);
 
             int stepsToUpAndRight = stepsToUp < stepsToRight ? stepsToUp : stepsToRight;
             int stepsToBottomAndLeft = stepsToBottom < stepsToLeft ? stepsToBottom : stepsToLeft;
             int steptsToUpAndLeft = stepsToUp < stepsToLeft ? stepsToUp : stepsToLeft;
             int steptsToBottomAndRight = stepsToBottom < stepsToRight ? stepsToBottom : stepsToRight;
 
-            Vector3Int leftBottomStep = new Vector3Int(-1, 0, -1);
-            Vector3Int leftUpStep = new Vector3Int(1, 0, -1);
-            Vector3Int rightBottomStep = new Vector3Int(-1, 0, 1);
-            Vector3Int rightUpStep = new Vector3Int(1, 0, 1);
+            Vector2Int leftBottomStep = new Vector2Int(-1,-1);
+            Vector2Int leftUpStep = new Vector2Int(1,-1);
+            Vector2Int rightBottomStep = new Vector2Int(-1, 1);
+            Vector2Int rightUpStep = new Vector2Int(1, 1);
 
             //Проверка по всем диагоналям на возможность побить шашку 
-            if (!CheckDiagonal(board, x1, z1, stepsToUpAndRight, rightUpStep) && !CheckDiagonal(board, x1, z1, stepsToBottomAndLeft, leftBottomStep)
-                && !CheckDiagonal(board, x1, z1, steptsToBottomAndRight, rightBottomStep) && !CheckDiagonal(board, x1, z1, steptsToUpAndLeft, leftUpStep))
+            if (!CheckDiagonal(board,start, stepsToUpAndRight, rightUpStep) && !CheckDiagonal(board,start, stepsToBottomAndLeft, leftBottomStep)
+                && !CheckDiagonal(board,start, steptsToBottomAndRight, rightBottomStep) && !CheckDiagonal(board,start, steptsToUpAndLeft, leftUpStep))
                 return false;
             else
                 return true;
@@ -137,32 +134,28 @@ public class Checker : MonoBehaviour
         return false;
     }
 
-    private bool CheckDiagonal(Checker[,] board, int x1, int z1, int stepsToDiagonalEnd, Vector3Int directionStep)
+    private bool CheckDiagonal(Checker[,] board, Vector2Int start, int stepsToDiagonalEnd, Vector2Int directionStep)
     {
-        int stepX = x1;
-        int stepZ = z1;
+       
         bool hasSameColor = false;
 
         for (int i = 0; i < stepsToDiagonalEnd; i++)
         {
-            if (i != 0 && (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite == IsWhite))
+            if (i != 0 && (board[start.x, start.y] != null && board[start.x, start.y].IsWhite == IsWhite))
                 hasSameColor = true;
-            if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != IsWhite)
+            if (board[start.x, start.y] != null && board[start.x, start.y].IsWhite != IsWhite)
             {
-                int jx = stepX + directionStep.x;
-                int jz = stepZ + directionStep.z;
+                Vector2Int jVector = start + directionStep;
                 for (int j = i; j < stepsToDiagonalEnd; j++)
                 {
-                    if (board[stepX + directionStep.x, stepZ + directionStep.z] != null)
+                    if (board[(start+directionStep).x, (start+directionStep).y] != null)
                         return false;
-                    if (board[jx, jz] == null && !hasSameColor)
+                    if (board[jVector.x, jVector.y] == null && !hasSameColor)
                         return true;
-                    jx += directionStep.x;
-                    jz += directionStep.z;
+                    jVector += directionStep;
                 }
             }
-            stepX += directionStep.x;
-            stepZ += directionStep.z;
+            start += directionStep;
 
         }
         return false;

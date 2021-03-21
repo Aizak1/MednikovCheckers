@@ -12,13 +12,13 @@ public class History : MonoBehaviour
         _fieldText = GetComponent<Text>();
     }
 
-    public void AddRecord(int x1,int z1,int x2,int z2,bool isWhiteTurn)
+    public void AddRecord(Vector2Int start,Vector2Int final,bool isWhiteTurn)
     {
         string lettersOnBoard = "ABCDEFGH";
         if (isWhiteTurn)
-            _fieldText.text = $" W - {lettersOnBoard[z1]}{x1+1} : {lettersOnBoard[z2]}{x2+1} \n" +  _fieldText.text;
+            _fieldText.text = $" W - {lettersOnBoard[start.y]}{start.x+1} : {lettersOnBoard[final.y]}{final.x+1} \n" +  _fieldText.text;
         else
-            _fieldText.text =  $" B - {lettersOnBoard[z1]}{x1+1} : {lettersOnBoard[z2]}{x2+1} \n" + _fieldText.text;
+            _fieldText.text =  $" B - {lettersOnBoard[start.y]}{start.x + 1} : {lettersOnBoard[final.y]}{final.x + 1} \n" + _fieldText.text;
         
 
     }

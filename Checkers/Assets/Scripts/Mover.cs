@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class Mover:MonoBehaviour
 {
-    public void Move(Checker checker,int destinationX,int destinationZ)
+    public void Move(Checker checker,Vector2Int destination)
     {
-        checker.gameObject.transform.position = new Vector3(destinationX, 0, -destinationZ);
+        checker.gameObject.transform.position = new Vector3(destination.x, 0, -destination.y);
     }
     public void UprageCheckDragPosition(Checker checker)
     {

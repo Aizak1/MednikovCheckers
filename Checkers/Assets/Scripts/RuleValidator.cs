@@ -51,7 +51,7 @@ public class RuleValidator:MonoBehaviour
             {
                 if (board[i, j] != null && board[i, j].IsWhite == isWhiteTurn)
                 {
-                    if (board[i, j].IsForcedToMove(board, i, j, isWhiteTurn))
+                    if (board[i, j].IsForcedToMove(board,new Vector2Int(i,j), isWhiteTurn))
                         ForcedToMoveCheckers.Add(board[i, j]);
                 }
             }
@@ -59,12 +59,12 @@ public class RuleValidator:MonoBehaviour
         return ForcedToMoveCheckers;
     }
 
-    public List<Checker> SearchForPossibleKills(Checker[,] _board,int x, int z,bool isWhiteTurn)
+    public List<Checker> SearchForPossibleKills(Checker[,] _board,Vector2Int coodinates,bool isWhiteTurn)
     {
         ForcedToMoveCheckers = new List<Checker>();
-        if (_board[x, z].IsForcedToMove(_board, x, z, isWhiteTurn))
+        if (_board[coodinates.x, coodinates.y].IsForcedToMove(_board,coodinates, isWhiteTurn))
         {
-            ForcedToMoveCheckers.Add(_board[x, z]);
+            ForcedToMoveCheckers.Add(_board[coodinates.x, coodinates.y]);
         }
         return ForcedToMoveCheckers;
     }
