@@ -27,9 +27,9 @@ public class Selecter:MonoBehaviour
 
         return mouseDownPosition;
     }
-    public Checker PickACell(Checker[,] _checkers, int x, int z)
+    public Checker PickACell(Checker[,] _checkers, Vector2Int coodinate)
     {
-        return _checkers[x, z];
+        return _checkers[coodinate.x, coodinate.y];
     }
     public Checker SelectChecker(Checker checker)
     {

@@ -87,13 +87,13 @@ public class MainLogic : MonoBehaviour
             {
                 _hinter.ChangeHighlightState(_validator);
             }
-            if (!_validator.OutOfBounds(_board, mouseDownPosition.x, mouseDownPosition.y))
+            if (!_validator.OutOfBounds(_board, mouseDownPosition))
             {
-                var cell = _selecter.PickACell(_board, mouseDownPosition.x, mouseDownPosition.y);
+                var cell = _selecter.PickACell(_board,mouseDownPosition);
                 if (_validator.SelectionValidate(cell, _isWhiteTurn))
                 {
                     _selectedChecker = _selecter.SelectChecker(cell);
-                    _selectionPosition = new Vector2Int(mouseDownPosition.x, mouseDownPosition.y);
+                    _selectionPosition = mouseDownPosition;
                     _sfx.PlayPicKSound();
                 }
             }
@@ -157,7 +157,7 @@ public class MainLogic : MonoBehaviour
         if (_selectedChecker == null)
             return;
 
-        if (_validator.OutOfBounds(_board, start.x, start.y))
+        if (_validator.OutOfBounds(_board,final))
         {
             if (_selectedChecker != null)
             {

@@ -35,9 +35,9 @@ public class RuleValidator:MonoBehaviour
         return false;
     }
 
-    public bool OutOfBounds(Checker[,] checkers,int x,int z)
+    public bool OutOfBounds(Checker[,] checkers,Vector2Int coordinate)
     {
-        if (x < 0 || x > checkers.GetLength(0) || z < 0 || z > checkers.GetLength(1))
+        if (coordinate.x < 0 || coordinate.x > checkers.GetLength(0) || coordinate.y < 0 || coordinate.y > checkers.GetLength(1))
             return true;
         return false;
     }
