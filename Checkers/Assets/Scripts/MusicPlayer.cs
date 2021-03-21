@@ -5,7 +5,7 @@ using UnityEngine;
 public class MusicPlayer : MonoBehaviour
 {
     [SerializeField] private AudioClip[] _tracks;
-    AudioSource _audioSource;
+    private AudioSource _audioSource;
 
     private static MusicPlayer _player;
     private void Awake()
@@ -24,7 +24,7 @@ public class MusicPlayer : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
     }
 
-    void Update()
+    private void Update()
     {
         if (!_audioSource.isPlaying)
             _audioSource.PlayOneShot(_tracks[Random.Range(0, _tracks.Length)]);

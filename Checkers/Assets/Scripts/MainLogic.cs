@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-
+//Игра расположена в плоскости XZ .X - положительно направлена,Z - отрицательно 
 public class MainLogic : MonoBehaviour
 {
     [SerializeField] private GameObject _whitePrefab;
@@ -82,32 +82,17 @@ public class MainLogic : MonoBehaviour
         var mouseDownPosition = _selecter.RecordMousePosition();
         if (Input.GetMouseButtonDown(0))
         {
-            _validator.SearchForPossibleKills(_board,_isWhiteTurn);
-            if (_validator.ForcedToMoveCheckers.Count != 0)
-            {
-                _hinter.ChangeHighlightState(_validator);
-            }
-            if (!_validator.OutOfBounds(_board, mouseDownPosition))
-            {
-                var cell = _selecter.PickACell(_board,mouseDownPosition);
-                if (_validator.SelectionValidate(cell, _isWhiteTurn))
-                {
-                    _selectedChecker = _selecter.SelectChecker(cell);
-                    _selectionPosition = mouseDownPosition;
-                    _sfx.PlayPicKSound();
-                }
-            }
+            TryToSelectChecker(mouseDownPosition);
         }
         if (_selectedChecker != null)
         {
-            _mover.UprageCheckDragPosition(_selectedChecker);
+            _mover.UprageCheckerDragPosition(_selectedChecker);
         }
 
         if (Input.GetMouseButtonUp(0))
         {
-
-            _hinter.ChangeHighlightState(_validator);
-            MakeTurn(_selectionPosition,mouseDownPosition);
+            _hinter.ChangeHighlightState(_validator.ForcedToMoveCheckers);
+            TryMakeTurn(_selectionPosition,mouseDownPosition);
             _hinter.ShowCurrentTurn(_isWhiteTurn);
         }
 
@@ -116,6 +101,25 @@ public class MainLogic : MonoBehaviour
             CheckForEndGameCondition();
         }
 
+    }
+
+    private void TryToSelectChecker(Vector2Int mouseDownPosition)
+    {
+        _validator.SearchForPossibleKills(_board, _isWhiteTurn);
+        if (_validator.ForcedToMoveCheckers.Count != 0)
+        {
+            _hinter.ChangeHighlightState(_validator.ForcedToMoveCheckers);
+        }
+        if (!_validator.CellIsOutOfBounds(_board, mouseDownPosition))
+        {
+            var cell = _selecter.PickACell(_board, mouseDownPosition);
+            if (_validator.SelectionValidate(cell, _isWhiteTurn))
+            {
+                _selectedChecker = _selecter.SelectChecker(cell);
+                _selectionPosition = mouseDownPosition;
+                _sfx.PlayPicKSound();
+            }
+        }
     }
 
     private void CheckForEndGameCondition()
@@ -152,12 +156,12 @@ public class MainLogic : MonoBehaviour
 
     }
 
-    private void MakeTurn(Vector2Int start, Vector2Int final)
+    private void TryMakeTurn(Vector2Int start, Vector2Int final)
     {
         if (_selectedChecker == null)
             return;
 
-        if (_validator.OutOfBounds(_board,final))
+        if (_validator.CellIsOutOfBounds(_board,final))
         {
             if (_selectedChecker != null)
             {
@@ -166,8 +170,6 @@ public class MainLogic : MonoBehaviour
             _selecter.Deselect(ref _selectedChecker);
             return;
         }
-
-
         if (_selectedChecker.IsAbleToMove(_board,start,final, _isWhiteTurn))
         {
 
@@ -182,22 +184,20 @@ public class MainLogic : MonoBehaviour
             }
             if (Math.Abs(start.x - final.x) > 2)
             {
-                //Направление с учетом расположения осей и доски
-                Vector2 direction = ((Vector2)start - final).normalized;
-                //Генерируем направление с единичными координатами для построения шага 
-                Vector2Int trueDiretion = new Vector2Int((int)(-1 * direction.x / Mathf.Abs(direction.x)), (int)(-1 * direction.y / Mathf.Abs(direction.y)));
-                Vector2Int step = start + trueDiretion;
+                Vector2Int step = Checker.CalculateDirectiobalStep(start, final);
+                //Инкрементируем вектор,чтобы не проверять начальную клетку
+                Vector2Int startStep = start + step;
                 int stepCounter = 0;
                 while (stepCounter != Mathf.Abs(final.x - start.x))
                 {
                     
-                    Checker checkerToDelete = _board[step.x, step.y];
+                    Checker checkerToDelete = _board[startStep.x, startStep.y];
                     if (checkerToDelete != null)
                     {
-                        RemoveChecker(step, checkerToDelete);
+                        RemoveChecker(startStep, checkerToDelete);
                         break;
                     }
-                    step += trueDiretion;
+                    startStep += step;
                     stepCounter++;
                 }
 

@@ -16,7 +16,6 @@ public class Checker : MonoBehaviour
 
     public bool IsWhite => _isWhite;
 
-
     public Checker()
     {
         _isSimple = true;
@@ -51,19 +50,17 @@ public class Checker : MonoBehaviour
             List<Checker> checkersBetweenKingPositions = new List<Checker>();
             if (CheckActionCondition(start,final, isWhiteturn, Mathf.Abs(final.x - start.x)))
             {
-                //Из данного вектора используем знаки у координат
-                Vector2 direction = ((Vector2)start - final).normalized;
-                //Генерируем направление с единичными координатами для построения шага 
-                Vector2Int trueDiretion = new Vector2Int((int)(-1 * direction.x / Mathf.Abs(direction.x)), (int)(-1 * direction.y / Mathf.Abs(direction.y)));
-                Vector2Int step = start + trueDiretion;
+                Vector2Int step = CalculateDirectiobalStep(start, final);
+                //Инкрементируем вектор,чтобы не проверять начальную клетку
+                Vector2Int startStep = start + step;
                 int stepCounter = 0;
                 while (stepCounter != Mathf.Abs(final.x - start.x))
                 {
-                    if (board[step.x, step.y] != null)
+                    if (board[startStep.x, startStep.y] != null)
                     {
-                        checkersBetweenKingPositions.Add(board[step.x, step.y]);
+                        checkersBetweenKingPositions.Add(board[startStep.x, startStep.y]);
                     }
-                    step += trueDiretion;
+                    startStep += step;
                     stepCounter++;
                 }
 
@@ -164,6 +161,15 @@ public class Checker : MonoBehaviour
     {
         _isSimple = false;
         transform.rotation = Quaternion.Euler(-270, 0, 0);
+    }
+
+    public static Vector2Int CalculateDirectiobalStep(Vector2Int start,Vector2Int final)
+    {
+        //Из данного вектора используем знаки у координат
+        Vector2 direction = ((Vector2)final - start).normalized;
+        //С помощью знаков генерируем направление с единичными координатами для построения шага 
+        Vector2Int step = new Vector2Int((int)(direction.x / Mathf.Abs(direction.x)), (int)(direction.y / Mathf.Abs(direction.y)));
+        return step;
     }
     
 }

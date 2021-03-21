@@ -65,9 +65,9 @@ public class Hinter : MonoBehaviour
     {
         decorativeobject.transform.position = Vector3.MoveTowards(decorativeobject.transform.position, direction, _speed * Time.deltaTime);
     }
-    public void ChangeHighlightState(RuleValidator validator)
+    public void ChangeHighlightState(List<Checker> forcedToMoveCheckers)
     {
-        foreach (var item in validator.ForcedToMoveCheckers)
+        foreach (var item in forcedToMoveCheckers)
         {
 
             var renderer = item.gameObject.GetComponent<Renderer>();

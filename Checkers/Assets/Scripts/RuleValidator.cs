@@ -35,7 +35,7 @@ public class RuleValidator:MonoBehaviour
         return false;
     }
 
-    public bool OutOfBounds(Checker[,] checkers,Vector2Int coordinate)
+    public bool CellIsOutOfBounds(Checker[,] checkers,Vector2Int coordinate)
     {
         if (coordinate.x < 0 || coordinate.x > checkers.GetLength(0) || coordinate.y < 0 || coordinate.y > checkers.GetLength(1))
             return true;

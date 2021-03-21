@@ -8,7 +8,7 @@ public class Mover:MonoBehaviour
     {
         checker.gameObject.transform.position = new Vector3(destination.x, 0, -destination.y);
     }
-    public void UprageCheckDragPosition(Checker checker)
+    public void UprageCheckerDragPosition(Checker checker)
     {
         RaycastHit hit;
         float rayLength = 25.0f;
