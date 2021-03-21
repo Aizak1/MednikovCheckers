@@ -9,15 +9,12 @@ public class MainLogic : MonoBehaviour
     [SerializeField] private GameObject _whitePrefab;
     [SerializeField] private GameObject _blackPrefab;
     [SerializeField] private GameObject _vfx;
-    [SerializeField] private Material _materialToHighlightForces;
-    private Material _initialMaterial;
 
     private GameState _gameState;
     /// <summary>
     /// null - пустая клетка, не null - шашка 
     /// </summary>
-    private Checker[,] _board = new Checker[8, 8];
-   
+    private Checker[,] _board = new Checker[8, 8];   
     private Checker _selectedChecker;
     private Vector2Int _selectionPosition;
 
@@ -78,10 +75,7 @@ public class MainLogic : MonoBehaviour
         _history = FindObjectOfType<History>();
         _hinter = FindObjectOfType<Hinter>();
         _sfx = FindObjectOfType<SFX>();
-        _initialMaterial = _whitePrefab.GetComponent<Renderer>().sharedMaterial;
         _gameState = GameState.Started;
-
-
     }
     private void Update()
     {
@@ -91,7 +85,7 @@ public class MainLogic : MonoBehaviour
             _validator.SearchForPossibleKills(_board,_isWhiteTurn);
             if (_validator.ForcedToMoveCheckers.Count != 0)
             {
-                ChangeHighlightState(_materialToHighlightForces);
+                _hinter.ChangeHighlightState(_validator);
             }
             if (!_validator.OutOfBounds(_board, mouseDownPosition.x, mouseDownPosition.y))
             {
@@ -104,8 +98,6 @@ public class MainLogic : MonoBehaviour
                 }
             }
         }
-       
-
         if (_selectedChecker != null)
         {
             _mover.UprageCheckDragPosition(_selectedChecker);
@@ -113,8 +105,8 @@ public class MainLogic : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-           
-            ChangeHighlightState(_initialMaterial);
+
+            _hinter.ChangeHighlightState(_validator);
             MakeTurn(_selectionPosition.x, _selectionPosition.y, mouseDownPosition.x, mouseDownPosition.y);
             _hinter.ShowCurrentTurn(_isWhiteTurn);
         }
@@ -124,16 +116,6 @@ public class MainLogic : MonoBehaviour
             CheckForEndGameCondition();
         }
 
-    }
-
-    private void ChangeHighlightState(Material material)
-    {
-        foreach (var item in _validator.ForcedToMoveCheckers)
-        {
-
-            var renderer = item.gameObject.GetComponent<Renderer>();
-            renderer.sharedMaterial = material;
-        }
     }
 
     private void CheckForEndGameCondition()
@@ -151,13 +133,13 @@ public class MainLogic : MonoBehaviour
 
             }
         }
-        if (!hasWhite && hasBlack)
+
+        if (hasBlack)
         {
             Result = ResultOfGame.BlackWins;
             _gameState = GameState.Ended;
         }
-
-        if (!hasBlack && hasWhite)
+        if (hasWhite)
         {
             Result = ResultOfGame.WhiteWins;
             _gameState = GameState.Ended;
@@ -202,8 +184,9 @@ public class MainLogic : MonoBehaviour
             {
                 Vector2 start = new Vector2(x1, z1);
                 Vector2 end = new Vector2(x2, z2);
-                Vector2 direction = (start - end).normalized;
                 //Направление с учетом расположения осей и доски
+                Vector2 direction = (start - end).normalized;
+                //Генерируем направление с единичными координатами для построения шага 
                 Vector2Int trueDiretion = new Vector2Int((int)(-1 * direction.x / Mathf.Abs(direction.x)), (int)(-1 * direction.y / Mathf.Abs(direction.y)));
                 Vector2Int step = new Vector2Int(x1 + trueDiretion.x, z1 + trueDiretion.y);
                 int stepCounter = 0;
@@ -286,10 +269,5 @@ public class MainLogic : MonoBehaviour
         _history.AddRecord(_selectionPosition.x, _selectionPosition.y, x2, z2, _isWhiteTurn);
         _hasKilled = false;
         _isWhiteTurn = !_isWhiteTurn;
-        
-       
-
     }
-
-   
 }

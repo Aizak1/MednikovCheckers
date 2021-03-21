@@ -10,6 +10,9 @@ public class Hinter : MonoBehaviour
     [SerializeField] private GameObject _blackDecorative;
     [SerializeField] private Vector3 _whiteWaterSurface;
     [SerializeField] private Vector3 _blackWaterSurface;
+    [SerializeField] private Material _materialToHighlightForces;
+    private Material _initialMaterial;
+
 
     private Vector3 _initialWhitePosition;
     private Vector3 _initialBlackPosition;
@@ -18,19 +21,15 @@ public class Hinter : MonoBehaviour
     {
         _initialWhitePosition = _whiteDecorative.transform.position;
         _initialBlackPosition = _blackDecorative.transform.position;
+        _initialMaterial = _whiteDecorative.GetComponent<Renderer>().sharedMaterial;
         StartCoroutine(FirstTurn());
     }
-    private void Update()
-    {
-       
-    }
-
-
+    
     public void ShowCurrentTurn(bool isWhiteTurn)
     {
         StartCoroutine(ShowDecorativeInWater(isWhiteTurn));
     }
-    IEnumerator FirstTurn()
+    private IEnumerator FirstTurn()
     {
         while (_whiteDecorative.transform.position!=_whiteWaterSurface)
         {
@@ -39,7 +38,7 @@ public class Hinter : MonoBehaviour
         }
         
     }
-    IEnumerator ShowDecorativeInWater(bool isWhiteTurn)
+    private IEnumerator ShowDecorativeInWater(bool isWhiteTurn)
     {
         if (isWhiteTurn)
         {
@@ -66,8 +65,22 @@ public class Hinter : MonoBehaviour
     {
         decorativeobject.transform.position = Vector3.MoveTowards(decorativeobject.transform.position, direction, _speed * Time.deltaTime);
     }
+    public void ChangeHighlightState(RuleValidator validator)
+    {
+        foreach (var item in validator.ForcedToMoveCheckers)
+        {
+
+            var renderer = item.gameObject.GetComponent<Renderer>();
+            if (renderer.sharedMaterial  == _initialMaterial)
+                renderer.sharedMaterial = _materialToHighlightForces;
+            else
+                renderer.sharedMaterial = _initialMaterial;
+        }
+    }
+   
 
 
-    
-    
+
+
+
 }
