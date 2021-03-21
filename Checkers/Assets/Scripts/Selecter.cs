@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Selecter:MonoBehaviour
 {    
-    private Vector3 _boardOffset = new Vector3(0.55f, 0, 0.7f);
+    private Vector3 _cellOffset = new Vector3(0.55f, 0, 0.7f);
 
     public  Vector2Int RecordMousePosition()
     {
@@ -14,8 +14,8 @@ public class Selecter:MonoBehaviour
       float rayLength = 25.0f;
       if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit, rayLength, LayerMask.GetMask("Board")))
       {
-         mouseDownPosition.x = (int)(hit.point.x + _boardOffset.x);
-         mouseDownPosition.y = (int)(Mathf.Abs(hit.point.z) + _boardOffset.z);
+         mouseDownPosition.x = (int)(hit.point.x + _cellOffset.x);
+         mouseDownPosition.y = (int)(Mathf.Abs(hit.point.z) + _cellOffset.z);
 
        }
        else
