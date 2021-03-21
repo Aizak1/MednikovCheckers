@@ -6,16 +6,13 @@ using UnityEngine;
 
 public class Checker : MonoBehaviour
 {
-    private bool _isSimple;
-    private bool _isKing;
-    private const int _simplestepDelta = 1;
-    private const int _simplebeatDelta = 2;
+  
+   
     [SerializeField] private bool _isWhite;
-    
-
+    private const int _simpleStepDelta = 1;
+    private const int __simpleBeatDelta = 2;
+    private bool _isSimple;
     public bool IsSimple => _isSimple;
-
-    public bool IsKing => _isKing;
 
     public bool IsWhite => _isWhite;
 
@@ -23,7 +20,6 @@ public class Checker : MonoBehaviour
     public Checker()
     {
         _isSimple = true;
-        _isKing = false;
     }
     public bool IsAbleToMove(Checker[,] board, int x1, int z1, int x2, int z2, bool isWhiteturn)
     {
@@ -33,7 +29,8 @@ public class Checker : MonoBehaviour
         }
         if (_isSimple)
         {
-            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _simplestepDelta))
+            
+            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _simpleStepDelta))
                 if (_isWhite && x2 > x1)
                     return true;
                 else if (!_isWhite && x2 < x1)
@@ -41,31 +38,29 @@ public class Checker : MonoBehaviour
                 else
                     return false;
 
-            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, _simplebeatDelta))
+            if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, __simpleBeatDelta))
             {
                 Checker checkerToDelete = board[(x1 + x2) / 2, (z1 + z2) / 2];
-                if (checkerToDelete != null && checkerToDelete._isWhite != _isWhite)
+                if (checkerToDelete != null && checkerToDelete.IsWhite != IsWhite)
                 {
                     return true;
                 }
             }
-
         }
-        if (_isKing)
+        else
         {
             List<Checker> checkersBetweenKingPositions = new List<Checker>();
             if (CheckActionCondition(x1, z1, x2, z2, isWhiteturn, Mathf.Abs(x2 - x1)))
             {
                 Vector2 start = new Vector2(x1, z1);
                 Vector2 end = new Vector2(x2, z2);
+                //Из данного вектора используем знаки у координат
                 Vector2 direction = (start - end).normalized;
-                //направление в зависимости от расположение осей и доски
+                //Генерируем направление с единичными координатами для построения шага 
                 Vector2Int trueDiretion = new Vector2Int((int)(-1 * direction.x / Mathf.Abs(direction.x)), (int)(-1 * direction.y / Mathf.Abs(direction.y)));
                 Vector2Int step = new Vector2Int(x1 + trueDiretion.x, z1 + trueDiretion.y);
                 
                 int stepCounter = 0;
-               
-
                 while (stepCounter != Mathf.Abs(x2 - x1))
                 {
                     if (board[step.x, step.y] != null)
@@ -78,7 +73,7 @@ public class Checker : MonoBehaviour
 
                 if (checkersBetweenKingPositions.Count == 0)
                     return true;
-                else if (checkersBetweenKingPositions.Count == 1 && checkersBetweenKingPositions.All(x => x.IsWhite != _isWhite))
+                else if (checkersBetweenKingPositions.Count == 1 && checkersBetweenKingPositions.All(x => x.IsWhite != IsWhite))
                 {
                     return true;
                 }
@@ -86,8 +81,6 @@ public class Checker : MonoBehaviour
                     return false;
 
             }
-
-
         }
         return false;
     }
@@ -106,7 +99,7 @@ public class Checker : MonoBehaviour
                 for (int z = 0; z < board.GetLength(1); z++)
                 {
 
-                    if (CheckActionCondition(x1, z1, x, z, isWhiteTurn, _simplebeatDelta) && board[x, z] == null)
+                    if (CheckActionCondition(x1, z1, x, z, isWhiteTurn, __simpleBeatDelta) && board[x, z] == null)
                     {
                         Checker checkerToDelete = board[(x1 + x) / 2, (z1 + z) / 2];
                         if (checkerToDelete != null && checkerToDelete.IsWhite != IsWhite)
@@ -114,15 +107,11 @@ public class Checker : MonoBehaviour
                             return true;
                         }
                     }
-
-
                 }
-
             }
         }
-        if (_isKing)
+        else
         {
-
             int stepsToUp = 7 - x1;
             int stepsToRight = 7 - z1;
             int stepsToBottom = Mathf.Abs(0 - x1);
@@ -138,18 +127,13 @@ public class Checker : MonoBehaviour
             Vector3Int rightBottomStep = new Vector3Int(-1, 0, 1);
             Vector3Int rightUpStep = new Vector3Int(1, 0, 1);
 
-
+            //Проверка по всем диагоналям на возможность побить шашку 
             if (!CheckDiagonal(board, x1, z1, stepsToUpAndRight, rightUpStep) && !CheckDiagonal(board, x1, z1, stepsToBottomAndLeft, leftBottomStep)
                 && !CheckDiagonal(board, x1, z1, steptsToBottomAndRight, rightBottomStep) && !CheckDiagonal(board, x1, z1, steptsToUpAndLeft, leftUpStep))
                 return false;
             else
                 return true;
-
-
         }
-
-
-
         return false;
     }
 
@@ -159,12 +143,11 @@ public class Checker : MonoBehaviour
         int stepZ = z1;
         bool hasSameColor = false;
 
-
         for (int i = 0; i < stepsToDiagonalEnd; i++)
         {
-            if (i != 0 && (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite == _isWhite))
+            if (i != 0 && (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite == IsWhite))
                 hasSameColor = true;
-            if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != _isWhite)
+            if (board[stepX, stepZ] != null && board[stepX, stepZ].IsWhite != IsWhite)
             {
                 int jx = stepX + directionStep.x;
                 int jz = stepZ + directionStep.z;
@@ -187,7 +170,6 @@ public class Checker : MonoBehaviour
     public void BecomeKing()
     {
         _isSimple = false;
-        _isKing = true;
         transform.rotation = Quaternion.Euler(-270, 0, 0);
     }
     

@@ -6,25 +6,22 @@ using UnityEngine.UI;
 
 public class VictoryValidator : MonoBehaviour
 {
-    // Start is called before the first frame update
     [SerializeField] private Canvas _endMenu;
     [SerializeField] private Text _text;
-    private MainLogic board;
+    private MainLogic _logic;
     private void Start()
     {
-        board = FindObjectOfType<MainLogic>();
-       
+        _logic = FindObjectOfType<MainLogic>();
     }
 
-    // Update is called once per frame
     private void Update()
     {
-        if(board.GetGameState == GameState.Ended)
+        if(_logic.GetGameState == GameState.Ended)
         {
             _endMenu.enabled = true;
-            if (board.Result == ResultOfGame.WhiteWins)
+            if (_logic.Result == ResultOfGame.WhiteWins)
                 _text.text = "White Wins";
-            else if (board.Result == ResultOfGame.BlackWins)
+            else if (_logic.Result == ResultOfGame.BlackWins)
                 _text.text = "Black Wins";
             else
                 _text.text = "Draw";
@@ -32,9 +29,5 @@ public class VictoryValidator : MonoBehaviour
         
     }
 
-    public void RestartTheScene()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-       
-    }
+   
 }

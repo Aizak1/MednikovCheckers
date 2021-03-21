@@ -9,4 +9,8 @@ public class Loader : MonoBehaviour
     {
         SceneManager.LoadScene(name); 
     }
+    public void RestartTheScene()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
 }

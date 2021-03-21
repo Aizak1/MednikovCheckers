@@ -16,7 +16,7 @@ public class MusicPlayer : MonoBehaviour
         }
            
         else
-       {
+        {
             Destroy(gameObject);
             return;
         }
@@ -24,12 +24,6 @@ public class MusicPlayer : MonoBehaviour
         _audioSource = GetComponent<AudioSource>();
     }
 
-    void Start()
-    { 
-        
-    }
-
-    // Update is called once per frame
     void Update()
     {
         if (!_audioSource.isPlaying)

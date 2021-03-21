@@ -13,10 +13,11 @@ public class MainLogic : MonoBehaviour
     private Material _initialMaterial;
 
     private GameState _gameState;
+    /// <summary>
+    /// null - пустая клетка, не null - шашка 
+    /// </summary>
     private Checker[,] _board = new Checker[8, 8];
-    private List<Checker> _forcedToMoveCheckers;
-
-
+   
     private Checker _selectedChecker;
     private Vector2Int _selectionPosition;
 
@@ -24,6 +25,7 @@ public class MainLogic : MonoBehaviour
     private RuleValidator _validator;
     private Mover _mover;
     private History _history;
+    private Hinter _hinter;
     private SFX _sfx;
 
     private bool _isWhiteTurn;
@@ -34,8 +36,9 @@ public class MainLogic : MonoBehaviour
 
     public ResultOfGame Result { get; private set; }
 
-    public void GenerateBoard()
+    private void GenerateBoard()
     {
+      
         for (int x = 0; x < 8; x++)
         {
             int initialZCoordinate;
@@ -65,49 +68,43 @@ public class MainLogic : MonoBehaviour
 
     }
 
-
-
     private void Start()
     {
         GenerateBoard();
         _isWhiteTurn = true;
         _validator = GetComponent<RuleValidator>();
-        _forcedToMoveCheckers = new List<Checker>();
         _selecter = GetComponent<Selecter>();
         _mover = GetComponent<Mover>();
         _history = FindObjectOfType<History>();
+        _hinter = FindObjectOfType<Hinter>();
         _sfx = FindObjectOfType<SFX>();
         _initialMaterial = _whitePrefab.GetComponent<Renderer>().sharedMaterial;
         _gameState = GameState.Started;
 
 
     }
-
     private void Update()
     {
         var mouseDownPosition = _selecter.RecordMousePosition();
         if (Input.GetMouseButtonDown(0))
         {
-            _forcedToMoveCheckers = SearchForPossibleKills();
-            if (_forcedToMoveCheckers.Count != 0)
+            _validator.SearchForPossibleKills(_board,_isWhiteTurn);
+            if (_validator.ForcedToMoveCheckers.Count != 0)
             {
                 ChangeHighlightState(_materialToHighlightForces);
             }
-
             if (!_validator.OutOfBounds(_board, mouseDownPosition.x, mouseDownPosition.y))
             {
                 var cell = _selecter.PickACell(_board, mouseDownPosition.x, mouseDownPosition.y);
-
-                if (_validator.SelectionValidate(cell, _isWhiteTurn, _forcedToMoveCheckers))
+                if (_validator.SelectionValidate(cell, _isWhiteTurn))
                 {
                     _selectedChecker = _selecter.SelectChecker(cell);
                     _selectionPosition = new Vector2Int(mouseDownPosition.x, mouseDownPosition.y);
                     _sfx.PlayPicKSound();
                 }
             }
-
         }
-
+       
 
         if (_selectedChecker != null)
         {
@@ -116,11 +113,12 @@ public class MainLogic : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
+           
             ChangeHighlightState(_initialMaterial);
             MakeTurn(_selectionPosition.x, _selectionPosition.y, mouseDownPosition.x, mouseDownPosition.y);
-
-
+            _hinter.ShowCurrentTurn(_isWhiteTurn);
         }
+
         if (_gameState == GameState.Started)
         {
             CheckForEndGameCondition();
@@ -130,7 +128,7 @@ public class MainLogic : MonoBehaviour
 
     private void ChangeHighlightState(Material material)
     {
-        foreach (var item in _forcedToMoveCheckers)
+        foreach (var item in _validator.ForcedToMoveCheckers)
         {
 
             var renderer = item.gameObject.GetComponent<Renderer>();
@@ -224,9 +222,9 @@ public class MainLogic : MonoBehaviour
 
             }
 
-            if (_forcedToMoveCheckers.Count != 0 && !_hasKilled)
+            if (_validator.ForcedToMoveCheckers.Count != 0 && !_hasKilled)
             {
-                _selectedChecker.gameObject.transform.position = new Vector3(x1, 0, -z1);
+                _mover.Move(_selectedChecker, x1, z1);
                 _selecter.Deselect(ref _selectedChecker);
                 return;
             }
@@ -282,39 +280,16 @@ public class MainLogic : MonoBehaviour
         }
           
 
-        if (SearchForPossibleKills(x2, z2).Count != 0 && _hasKilled)
+        if (_validator.SearchForPossibleKills(_board,x2, z2,_isWhiteTurn).Count != 0 && _hasKilled)
             return;
 
         _history.AddRecord(_selectionPosition.x, _selectionPosition.y, x2, z2, _isWhiteTurn);
         _hasKilled = false;
         _isWhiteTurn = !_isWhiteTurn;
+        
+       
 
     }
 
-    private List<Checker> SearchForPossibleKills()
-    {
-        _forcedToMoveCheckers = new List<Checker>();
-        for (int i = 0; i < _board.GetLength(0); i++)
-        {
-            for (int j = 0; j < _board.GetLength(1); j++)
-            {
-                if (_board[i, j] != null && _board[i, j].IsWhite == _isWhiteTurn)
-                {
-                    if (_board[i, j].IsForcedToMove(_board, i, j, _isWhiteTurn))
-                        _forcedToMoveCheckers.Add(_board[i, j]);
-                }
-            }
-        }
-        return _forcedToMoveCheckers;
-    }
-
-    private List<Checker> SearchForPossibleKills(int x, int z)
-    {
-        _forcedToMoveCheckers = new List<Checker>();
-        if (_board[x, z].IsForcedToMove(_board, x, z, _isWhiteTurn))
-        {
-            _forcedToMoveCheckers.Add(_board[x, z]);
-        }
-        return _forcedToMoveCheckers;
-    }
+   
 }
