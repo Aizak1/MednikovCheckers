@@ -3,8 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Selecter:MonoBehaviour
-{    
+{
+    [SerializeField] Texture2D _cursorTexture;
     private Vector3 _cellOffset = new Vector3(0.55f, 0, 0.7f);
+
+    private void Start()
+    {
+        Cursor.SetCursor(_cursorTexture, Vector2.zero, CursorMode.ForceSoftware);
+    }
 
     public  Vector2Int RecordMousePosition()
     {
@@ -16,7 +22,6 @@ public class Selecter:MonoBehaviour
       {
          mouseDownPosition.x = (int)(hit.point.x + _cellOffset.x);
          mouseDownPosition.y = (int)(Mathf.Abs(hit.point.z) + _cellOffset.z);
-
        }
        else
        {

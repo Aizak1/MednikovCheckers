@@ -10,7 +10,7 @@ public class Checker : MonoBehaviour
    
     [SerializeField] private bool _isWhite;
     private const int _simpleStepDelta = 1;
-    private const int __simpleBeatDelta = 2;
+    private const int _simpleBeatDelta = 2;
     private bool _isSimple;
     public bool IsSimple => _isSimple;
 
@@ -35,7 +35,7 @@ public class Checker : MonoBehaviour
                 else
                     return false;
 
-            if (CheckActionCondition(start,final, isWhiteturn, __simpleBeatDelta))
+            if (CheckActionCondition(start,final, isWhiteturn, _simpleBeatDelta))
             {
                 Vector2Int deletePosition = (start + final) / 2;
                 Checker checkerToDelete = board[deletePosition.x, deletePosition.y];
@@ -92,7 +92,7 @@ public class Checker : MonoBehaviour
                 for (int z = 0; z < board.GetLength(1); z++)
                 {
                     Vector2Int final = new Vector2Int(x, z);
-                    if (CheckActionCondition(start,final,isWhiteTurn, __simpleBeatDelta) && board[x, z] == null)
+                    if (CheckActionCondition(start,final,isWhiteTurn, _simpleBeatDelta) && board[x, z] == null)
                     {
                         Vector2Int deletePosition = (start + final) / 2;
                         Checker checkerToDelete = board[deletePosition.x, deletePosition.y];
