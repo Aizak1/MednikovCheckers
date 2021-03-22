@@ -24,7 +24,7 @@ public class Move
 
 public class AI : MonoBehaviour
 {
-    private List<Checker> checkers;
+    private List<Checker> _checkers;
     private int _blackCount;
     private int _whiteCount;
     private void Start()
@@ -34,7 +34,11 @@ public class AI : MonoBehaviour
 
     public void RefreshListsofCheckers()
     {
-        checkers = FindObjectsOfType<Checker>().ToList();
+        _checkers = FindObjectsOfType<Checker>().ToList();
+    }
+    public List<Move> GetAllMoves(Checker[,] board,bool isWhiteTurn)
+    {
+        return null;
     }
 
 
