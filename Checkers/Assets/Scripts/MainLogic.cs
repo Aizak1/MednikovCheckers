@@ -92,7 +92,7 @@ public class MainLogic : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             _hinter.ChangeHighlightState(_validator.ForcedToMoveCheckers);
-            TryMakeTurn(_selectionPosition,mouseDownPosition);
+             TryMakeTurn(_selectionPosition,mouseDownPosition);
             _hinter.ShowCurrentTurn(_isWhiteTurn);
         }
 
@@ -170,19 +170,11 @@ public class MainLogic : MonoBehaviour
             _selecter.Deselect(ref _selectedChecker);
             return;
         }
+
         if (_selectedChecker.IsAbleToMove(_board,start,final, _isWhiteTurn))
         {
-
-            if (Math.Abs(start.x - final.x) == 2)
-            {
-                Vector2Int deletePosition = (start + final) / 2;
-                Checker checkerToDelete = _board[deletePosition.x, deletePosition.y];
-                if (checkerToDelete != null)
-                {
-                    RemoveChecker(deletePosition, checkerToDelete);
-                }
-            }
-            if (Math.Abs(start.x - final.x) > 2)
+           
+            if (Math.Abs(start.x - final.x) >= 2)
             {
                 Vector2Int step = Checker.CalculateDirectiobalStep(start, final);
                 //Инкрементируем вектор,чтобы не проверять начальную клетку
@@ -190,7 +182,7 @@ public class MainLogic : MonoBehaviour
                 int stepCounter = 0;
                 while (stepCounter != Mathf.Abs(final.x - start.x))
                 {
-                    
+
                     Checker checkerToDelete = _board[startStep.x, startStep.y];
                     if (checkerToDelete != null)
                     {
@@ -224,6 +216,7 @@ public class MainLogic : MonoBehaviour
         }
     }
 
+  
     private void RemoveChecker(Vector2Int deletePosition, Checker checkerToDelete)
     {
         _board[deletePosition.x, deletePosition.y] = null;

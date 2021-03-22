@@ -80,7 +80,7 @@ public class Checker : MonoBehaviour
 
     private bool CheckActionCondition(Vector2Int start,Vector2Int final,bool isWhiteTurn, int conditionDelta)
     {
-        return Mathf.Abs(final.x - start.x) == conditionDelta && Mathf.Abs(final.y - start.y) == conditionDelta && _isWhite == isWhiteTurn;
+        return (Mathf.Abs(final.x - start.x) == conditionDelta) && (Mathf.Abs(final.y - start.y) == conditionDelta) && (_isWhite == isWhiteTurn);
     }
 
     public bool IsForcedToMove(Checker[,] board, Vector2Int start,bool isWhiteTurn)

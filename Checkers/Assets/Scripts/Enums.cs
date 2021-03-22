@@ -9,3 +9,8 @@ public enum ResultOfGame
     BlackWins,
     Draw
 }
+public enum SecondPlayer
+{
+    Human,
+    AI
+}
