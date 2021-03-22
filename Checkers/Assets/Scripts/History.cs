@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,5 +24,19 @@ public class History : MonoBehaviour
         else
             _fieldText.text =  $" B - {lettersOnBoard[start.y]}{start.x + 1} : {lettersOnBoard[final.y]}{final.x + 1} \n" + _fieldText.text;
         
+    }
+
+    public Tuple<Vector2Int,Vector2Int,bool> RemoveStepFromHistory()
+    {
+        var words = Regex.Split(_fieldText.text, @"\n+");
+        _fieldText.text = "";
+        for (int i = 1; i < words.Length; i++)
+        {
+            _fieldText.text = words[i] + _fieldText.text;
+        }
+        if (StepsHistory.Count != 0)
+            return StepsHistory.Pop();
+        else
+            return null;
     }
 }

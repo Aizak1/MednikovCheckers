@@ -69,9 +69,9 @@ public class MainLogic : MonoBehaviour
     {
         GenerateBoard();
         _isWhiteTurn = true;
-        _validator = GetComponent<RuleValidator>();
-        _selecter = GetComponent<Selecter>();
-        _mover = GetComponent<Mover>();
+        _validator = FindObjectOfType<RuleValidator>();
+        _selecter = FindObjectOfType<Selecter>();
+        _mover = FindObjectOfType<Mover>();
         _history = FindObjectOfType<History>();
         _hinter = FindObjectOfType<Hinter>();
         _sfx = FindObjectOfType<SFX>();
@@ -265,5 +265,18 @@ public class MainLogic : MonoBehaviour
         _history.AddRecord(_selectionPosition,final, _isWhiteTurn);
         _hasKilled = false;
         _isWhiteTurn = !_isWhiteTurn;
+    }
+
+    public void CancelTurn()
+    {
+        Tuple<Vector2Int, Vector2Int, bool> turnInfo = _history.RemoveStepFromHistory();
+        if (turnInfo == null)
+            return;
+        _isWhiteTurn = turnInfo.Item3;
+        var selectedChecker = _board[turnInfo.Item2.x, turnInfo.Item2.y];
+        _mover.Move(selectedChecker, turnInfo.Item1);
+        _board[turnInfo.Item2.x, turnInfo.Item2.y] = null;
+        _board[turnInfo.Item1.x, turnInfo.Item1.y] = selectedChecker;
+
     }
 }
