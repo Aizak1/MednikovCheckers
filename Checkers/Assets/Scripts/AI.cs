@@ -28,7 +28,7 @@ public class AI : MonoBehaviour
     private int _blackCount;
     private int _whiteCount;
    
-    public List<Move> GetAllMoves(RuleValidator validator, bool isWhiteTurn)
+    public List<Move> GetAllMoves(Checker[,] board,RuleValidator validator, bool isWhiteTurn)
     {
         _checkers = FindObjectsOfType<Checker>().ToList();
 
