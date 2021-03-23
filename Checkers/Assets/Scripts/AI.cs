@@ -44,7 +44,7 @@ public class AI : MonoBehaviour
             posCounter++;
         }
 
-       
+        validator.SearchForPossibleKills(boardCopy, isWhiteTurn);
         for (int i = 0; i < initialPoses.Length; i++)
         {
             for (int j = 0; j < boardCopy.GetLength(0); j++)

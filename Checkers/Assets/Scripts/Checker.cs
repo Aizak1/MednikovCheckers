@@ -35,7 +35,7 @@ public class Checker : MonoBehaviour
                 else
                     return false;
 
-            if (CheckActionCondition(start,final, isWhiteturn, _simpleBeatDelta))
+        if (CheckActionCondition(start,final, isWhiteturn, _simpleBeatDelta))
             {
                 Vector2Int deletePosition = (start + final) / 2;
                 Checker checkerToDelete = board[deletePosition.x, deletePosition.y];

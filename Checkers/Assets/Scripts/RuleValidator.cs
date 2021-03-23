@@ -45,7 +45,7 @@ public class RuleValidator:MonoBehaviour
         return false;
     }
 
-    public  List<Checker> SearchForPossibleKills(Checker[,] board, bool isWhiteTurn)
+    public  void SearchForPossibleKills(Checker[,] board, bool isWhiteTurn)
     {
         ForcedToMoveCheckers = new List<Checker>();
         for (int i = 0; i < board.GetLength(0); i++)
@@ -59,17 +59,17 @@ public class RuleValidator:MonoBehaviour
                 }
             }
         }
-        return ForcedToMoveCheckers;
+        
     }
 
-    public List<Checker> SearchForPossibleKills(Checker[,] _board,Vector2Int coodinates,bool isWhiteTurn)
+    public void SearchForPossibleKills(Checker[,] _board,Vector2Int coodinates,bool isWhiteTurn)
     {
         ForcedToMoveCheckers = new List<Checker>();
         if (_board[coodinates.x, coodinates.y].IsForcedToMove(_board,coodinates, isWhiteTurn))
         {
             ForcedToMoveCheckers.Add(_board[coodinates.x, coodinates.y]);
         }
-        return ForcedToMoveCheckers;
+      
     }
 
 

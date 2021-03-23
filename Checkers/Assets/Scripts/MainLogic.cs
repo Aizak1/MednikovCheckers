@@ -9,6 +9,7 @@ public class MainLogic : MonoBehaviour
     [SerializeField] private GameObject _whitePrefab;
     [SerializeField] private GameObject _blackPrefab;
     [SerializeField] private GameObject _vfx;
+    [SerializeField] private SecondPlayer _secondPlayer;
 
     private GameState _gameState;
     /// <summary>
@@ -83,7 +84,6 @@ public class MainLogic : MonoBehaviour
         var mouseDownPosition = _selecter.RecordMousePosition();
         if (Input.GetMouseButtonDown(0))
         {
-            var moves = _ai.GetAllMoves(_validator,_isWhiteTurn);
             TryToSelectChecker(mouseDownPosition);
         }
         if (_selectedChecker != null)
@@ -94,7 +94,8 @@ public class MainLogic : MonoBehaviour
         if (Input.GetMouseButtonUp(0))
         {
             _hinter.ChangeHighlightState(_validator.ForcedToMoveCheckers);
-             TryMakeTurn(_selectionPosition,mouseDownPosition);
+             if(_secondPlayer == SecondPlayer.Human)
+                TryMakeTurn(_selectionPosition,mouseDownPosition);
             _hinter.ShowCurrentTurn(_isWhiteTurn);
         }
 
@@ -175,7 +176,6 @@ public class MainLogic : MonoBehaviour
 
         if (_selectedChecker.IsAbleToMove(_board,start,final, _isWhiteTurn))
         {
-           
             if (Math.Abs(start.x - final.x) >= 2)
             {
                 Vector2Int step = Checker.CalculateDirectiobalStep(start, final);
@@ -196,12 +196,12 @@ public class MainLogic : MonoBehaviour
                 }
 
             }
-
             if (_validator.ForcedToMoveCheckers.Count != 0 && !_hasKilled)
             {
-                _mover.Move(_selectedChecker,start);
-                _selecter.Deselect(ref _selectedChecker);
-                return;
+                _mover.Move(_selectedChecker, start);
+                 _selecter.Deselect(ref _selectedChecker);
+                  return;
+                
             }
 
             _board[final.x, final.y] = _selectedChecker;
@@ -253,9 +253,11 @@ public class MainLogic : MonoBehaviour
             _stepsWithOutKills++;
         }
           
-
-        if (_validator.SearchForPossibleKills(_board,final,_isWhiteTurn).Count != 0 && _hasKilled)
-            return;
+       if (_validator.SearchForPossibleKills(_board, final, _isWhiteTurn).Count != 0 && _hasKilled)
+           return;
+        
+       
+        
 
         _history.AddRecord(_selectionPosition,final, _isWhiteTurn);
         _hasKilled = false;
