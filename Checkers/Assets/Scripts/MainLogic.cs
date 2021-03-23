@@ -279,7 +279,7 @@ public class MainLogic : MonoBehaviour
     private void AiTurn()
     {
         
-        while (!_isWhiteTurn)
+        while (_gameState!=GameState.Ended && !_isWhiteTurn)
         {
            
              var move = _ai.GetRandomMove(_board, _validator, _isWhiteTurn);

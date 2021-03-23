@@ -56,14 +56,29 @@ public class AI : MonoBehaviour
                     {
                         if (boardCopy[initialPos.x, initialPos.y].IsAbleToMove(boardCopy, initialPos, probableFinalPos, isWhiteTurn))
                         {
-                            moves.Add(new Move(boardCopy[initialPos.x, initialPos.y], initialPos, probableFinalPos));
+                           moves.Add(new Move(boardCopy[initialPos.x, initialPos.y], initialPos, probableFinalPos));
                         }
                     }
                     else
                     {
                         if (boardCopy[initialPos.x, initialPos.y].IsAbleToMove(boardCopy, initialPos, probableFinalPos, isWhiteTurn) && Mathf.Abs(initialPos.x-probableFinalPos.x)>=2)
                         {
-                            moves.Add(new Move(boardCopy[initialPos.x, initialPos.y], initialPos, probableFinalPos));
+                            bool KillInDirection = false;
+                            Vector2Int step = Checker.CalculateDirectiobalStep(initialPos, probableFinalPos);
+                            Vector2Int startStep = initialPos + step;
+                            int stepCounter = 0;
+                            while (stepCounter != Mathf.Abs(probableFinalPos.x - initialPos.x))
+                            {
+                                Checker checkerToDelete = boardCopy[startStep.x, startStep.y];
+                                if (checkerToDelete != null && checkerToDelete.IsWhite != isWhiteTurn)
+                                {
+                                    KillInDirection = true;
+                                    break;
+                                }
+                                stepCounter++;
+                            }
+                            if (KillInDirection)
+                                moves.Add(new Move(boardCopy[initialPos.x, initialPos.y], initialPos, probableFinalPos));
                         }
                     }
                     
