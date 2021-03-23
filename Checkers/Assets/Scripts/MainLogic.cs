@@ -24,7 +24,7 @@ public class MainLogic : MonoBehaviour
     private History _history;
     private Hinter _hinter;
     private SFX _sfx;
-
+    private AI _ai;
     private bool _isWhiteTurn;
     private static int _stepsWithOutKills = 0;
     private bool _hasKilled;
@@ -75,6 +75,7 @@ public class MainLogic : MonoBehaviour
         _history = FindObjectOfType<History>();
         _hinter = FindObjectOfType<Hinter>();
         _sfx = FindObjectOfType<SFX>();
+        _ai = FindObjectOfType<AI>();
         _gameState = GameState.Started;
     }
     private void Update()
@@ -82,6 +83,7 @@ public class MainLogic : MonoBehaviour
         var mouseDownPosition = _selecter.RecordMousePosition();
         if (Input.GetMouseButtonDown(0))
         {
+            var moves = _ai.GetAllMoves(_isWhiteTurn);
             TryToSelectChecker(mouseDownPosition);
         }
         if (_selectedChecker != null)

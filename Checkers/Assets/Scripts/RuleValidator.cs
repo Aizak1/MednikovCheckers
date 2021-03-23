@@ -6,7 +6,10 @@ public class RuleValidator:MonoBehaviour
 {
     public List<Checker> ForcedToMoveCheckers { get; private set; }
 
-   
+    private void Start()
+    {
+        ForcedToMoveCheckers = new List<Checker>();
+    }
     public bool SelectionValidate(Checker selectedChecker, bool _isWhiteTurn)
     {
      
