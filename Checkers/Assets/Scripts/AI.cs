@@ -24,28 +24,27 @@ public class Move
 
 public class AI : MonoBehaviour
 {
-    private List<Checker> _checkers;
-    private int _blackCount;
-    private int _whiteCount;
    
-    public List<Move> GetAllMoves(Checker[,] board,RuleValidator validator, bool isWhiteTurn)
+    public List<Move> GetAllMoves(Checker[,]board,RuleValidator validator, bool isWhiteTurn)
     {
-        _checkers = FindObjectsOfType<Checker>().ToList();
-
         Checker[,] boardCopy = new Checker[8, 8];
-        Vector2Int[] initialPoses = new Vector2Int[_checkers.Count];
+        List<Vector2Int> initialPoses = new List<Vector2Int>();
         List<Move> moves = new List<Move>();
         //в листе чекеров,объекты располагаются в противоположном порядке
-        int posCounter = 0;
-        for (int i = _checkers.Count-1; i>=0; i--)
+        for (int i = 0; i < boardCopy.GetLength(0); i++)
         {
-            initialPoses[posCounter] = new Vector2Int((int)_checkers[i].transform.position.x, -(int)_checkers[i].transform.position.z);
-            boardCopy[initialPoses[posCounter].x, initialPoses[posCounter].y] = _checkers[i];
-            posCounter++;
+            for (int j = 0; j < boardCopy.GetLength(1); j++)
+            {
+                if (board[i, j] != null)
+                {
+                    initialPoses.Add(new Vector2Int(i, j));
+                    boardCopy[i, j] = board[i, j];
+                }
+            }
         }
 
         validator.SearchForPossibleKills(boardCopy, isWhiteTurn);
-        for (int i = 0; i < initialPoses.Length; i++)
+        for (int i = 0; i < initialPoses.Count; i++)
         {
             for (int j = 0; j < boardCopy.GetLength(0); j++)
             {
@@ -75,9 +74,9 @@ public class AI : MonoBehaviour
         return moves;
     }
 
-    public Move GetRandomMove(RuleValidator validator ,bool isWhiteTurn)
+    public Move GetRandomMove(Checker[,]board,RuleValidator validator ,bool isWhiteTurn)
     {
-        var moves = GetAllMoves(validator,isWhiteTurn);
+        var moves = GetAllMoves(board,validator,isWhiteTurn);
         return moves[Random.Range(0, moves.Count)];
     }
 

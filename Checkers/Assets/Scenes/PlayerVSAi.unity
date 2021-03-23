@@ -950,6 +950,49 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 775344096}
   m_CullTransparentMesh: 1
+--- !u!1 &776741826
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 776741828}
+  - component: {fileID: 776741827}
+  m_Layer: 0
+  m_Name: AI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &776741827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 776741826}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b30657a362524f046a53e92a4e3d656d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &776741828
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 776741826}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.46, y: -0.050000004, z: -3.5400176}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 14
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &841954994
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1121,7 +1164,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -183, y: 99.99924}
+  m_AnchoredPosition: {x: -183, y: 99.99996}
   m_SizeDelta: {x: 183, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &877182179
@@ -1260,8 +1303,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1981584205}
   m_HandleRect: {fileID: 1981584204}
   m_Direction: 2
-  m_Value: 1.0000076
-  m_Size: 0.66585857
+  m_Value: 0.9999997
+  m_Size: 0.6664978
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2185,6 +2228,7 @@ MonoBehaviour:
   _whitePrefab: {fileID: 2786557725113536853, guid: 825d2252fe6c15b4896e5721e958f067, type: 3}
   _blackPrefab: {fileID: 869900321697154151, guid: 54c893bf4b602d34789e7e0130a1db67, type: 3}
   _vfx: {fileID: 366306233314132657, guid: 8e56178cc11ddbf4288fa434c23c04f2, type: 3}
+  _secondPlayer: 1
 --- !u!65 &1773077078
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2232,7 +2276,7 @@ MonoBehaviour:
   _whiteWaterSurface: {x: 4.73, y: -1.27, z: 4.58}
   _blackWaterSurface: {x: 2.22, y: -1.27, z: 4.58}
   _materialToHighlightForces: {fileID: 2100000, guid: 009c2aba68e9f384c8e85c0082eda0c2, type: 2}
-  _speed: 0.5
+  _speed: 0.6
 --- !u!4 &1789180185
 Transform:
   m_ObjectHideFlags: 0
