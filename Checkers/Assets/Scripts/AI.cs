@@ -74,14 +74,15 @@ public class AI : MonoBehaviour
         return moves;
     }
 
-    public Move GetRandomMove(Checker[,]board,RuleValidator validator ,bool isWhiteTurn)
+    public Move GetRandomMove(Checker[,]board, RuleValidator validator ,bool isWhiteTurn)
     {
         var moves = GetAllMoves(board,validator,isWhiteTurn);
         return moves[Random.Range(0, moves.Count)];
     }
-
- 
    
+
+
+
 }
 
 

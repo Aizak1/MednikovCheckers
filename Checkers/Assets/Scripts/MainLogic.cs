@@ -278,12 +278,15 @@ public class MainLogic : MonoBehaviour
     }
     private void AiTurn()
     {
+        
         while (!_isWhiteTurn)
         {
-            var move = _ai.GetRandomMove(_board,_validator, _isWhiteTurn);
+           
+             var move = _ai.GetRandomMove(_board, _validator, _isWhiteTurn);
             _selectedChecker = move.SelectedChecker;
             _selectionPosition = move.StartPosition;
             TryMakeTurn(move.StartPosition, move.FinalPosition);
+            
         }
     }
 

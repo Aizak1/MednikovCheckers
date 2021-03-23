@@ -7,7 +7,6 @@ using UnityEngine;
 public class Checker : MonoBehaviour
 {
   
-   
     [SerializeField] private bool _isWhite;
     private const int _simpleStepDelta = 1;
     private const int _simpleBeatDelta = 2;
