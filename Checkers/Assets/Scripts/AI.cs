@@ -75,6 +75,7 @@ public class AI : MonoBehaviour
                                     KillInDirection = true;
                                     break;
                                 }
+                                startStep += step;
                                 stepCounter++;
                             }
                             if (KillInDirection)
