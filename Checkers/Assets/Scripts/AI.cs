@@ -28,7 +28,7 @@ public class AI : MonoBehaviour
     private int _blackCount;
     private int _whiteCount;
    
-    public List<Move> GetAllMoves(bool isWhiteTurn)
+    public List<Move> GetAllMoves(RuleValidator validator, bool isWhiteTurn)
     {
         _checkers = FindObjectsOfType<Checker>().ToList();
 
@@ -53,10 +53,21 @@ public class AI : MonoBehaviour
                 {
                     Vector2Int initialPos = initialPoses[i];
                     Vector2Int probableFinalPos = new Vector2Int(j, k);
-                    if (boardCopy[initialPos.x, initialPos.y].IsAbleToMove(boardCopy, initialPos, probableFinalPos, isWhiteTurn))
+                    if (validator.ForcedToMoveCheckers.Count == 0)
                     {
-                        moves.Add(new Move(boardCopy[initialPos.x, initialPos.y], initialPos, probableFinalPos));
+                        if (boardCopy[initialPos.x, initialPos.y].IsAbleToMove(boardCopy, initialPos, probableFinalPos, isWhiteTurn))
+                        {
+                            moves.Add(new Move(boardCopy[initialPos.x, initialPos.y], initialPos, probableFinalPos));
+                        }
                     }
+                    else
+                    {
+                        if (boardCopy[initialPos.x, initialPos.y].IsAbleToMove(boardCopy, initialPos, probableFinalPos, isWhiteTurn) && Mathf.Abs(initialPos.x-probableFinalPos.x)>=2)
+                        {
+                            moves.Add(new Move(boardCopy[initialPos.x, initialPos.y], initialPos, probableFinalPos));
+                        }
+                    }
+                    
                 }
                
             }
@@ -64,9 +75,9 @@ public class AI : MonoBehaviour
         return moves;
     }
 
-    public Move GetRandomMove(bool isWhiteTurn)
+    public Move GetRandomMove(RuleValidator validator ,bool isWhiteTurn)
     {
-        var moves = GetAllMoves(isWhiteTurn);
+        var moves = GetAllMoves(validator,isWhiteTurn);
         return moves[Random.Range(0, moves.Count)];
     }
 

@@ -83,7 +83,7 @@ public class MainLogic : MonoBehaviour
         var mouseDownPosition = _selecter.RecordMousePosition();
         if (Input.GetMouseButtonDown(0))
         {
-            var moves = _ai.GetAllMoves(_isWhiteTurn);
+            var moves = _ai.GetAllMoves(_validator,_isWhiteTurn);
             TryToSelectChecker(mouseDownPosition);
         }
         if (_selectedChecker != null)
