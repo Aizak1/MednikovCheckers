@@ -96,6 +96,18 @@ public class MainLogic : MonoBehaviour
             _hinter.ChangeHighlightState(_validator.ForcedToMoveCheckers);
              if(_secondPlayer == SecondPlayer.Human)
                 TryMakeTurn(_selectionPosition,mouseDownPosition);
+            else
+            {
+                if (_isWhiteTurn)
+                {
+                    TryMakeTurn(_selectionPosition, mouseDownPosition);
+                    if(!_isWhiteTurn)
+                     AiMakeTurn();
+                }
+                    
+                
+
+            }
             _hinter.ShowCurrentTurn(_isWhiteTurn);
         }
 
@@ -218,7 +230,6 @@ public class MainLogic : MonoBehaviour
         }
     }
 
-  
     private void RemoveChecker(Vector2Int deletePosition, Checker checkerToDelete)
     {
         _board[deletePosition.x, deletePosition.y] = null;
@@ -252,8 +263,8 @@ public class MainLogic : MonoBehaviour
             _sfx.PlayDropSound();
             _stepsWithOutKills++;
         }
-          
-       if (_validator.SearchForPossibleKills(_board, final, _isWhiteTurn).Count != 0 && _hasKilled)
+        _validator.SearchForPossibleKills(_board, final, _isWhiteTurn);
+       if (_validator.ForcedToMoveCheckers.Count != 0 && _hasKilled)
            return;
         
        
@@ -264,6 +275,73 @@ public class MainLogic : MonoBehaviour
         _isWhiteTurn = !_isWhiteTurn;
     }
 
-    
-   
+    private void AiMakeTurn()
+    {
+        var move = _ai.GetRandomMove(_validator, _isWhiteTurn);
+        _selectedChecker = move.SelectedChecker;
+        _selectionPosition = move.StartPosition;
+            if (Math.Abs(move.StartPosition.x - move.FinalPosition.x) >= 2)
+            {
+                Vector2Int step = Checker.CalculateDirectiobalStep(move.StartPosition,move.FinalPosition);
+                //Инкрементируем вектор,чтобы не проверять начальную клетку
+                Vector2Int startStep = move.StartPosition + step;
+                int stepCounter = 0;
+                while (stepCounter != Mathf.Abs(move.FinalPosition.x - move.StartPosition.x))
+                {
+
+                    Checker checkerToDelete = _board[startStep.x, startStep.y];
+                    if (checkerToDelete != null)
+                    {
+                        RemoveChecker(startStep, checkerToDelete);
+                        break;
+                    }
+                    startStep += step;
+                    stepCounter++;
+                }
+
+            }
+
+            _board[move.FinalPosition.x,move.FinalPosition.y] = _selectedChecker;
+            _board[move.StartPosition.x, move.StartPosition.y] = null;
+            _mover.Move(_selectedChecker, move.FinalPosition);
+
+        if (_selectedChecker != null)
+        {
+            if (_selectedChecker.IsWhite && move.FinalPosition.x == 7)
+            {
+                _selectedChecker.BecomeKing();
+            }
+            else if (!_selectedChecker.IsWhite && move.FinalPosition.x == 0)
+            {
+                _selectedChecker.BecomeKing();
+            }
+        }
+        _selecter.Deselect(ref _selectedChecker);
+        if (_hasKilled)
+        {
+            _sfx.PlayKillSound();
+            _stepsWithOutKills = 0;
+        }
+        else
+        {
+            _sfx.PlayDropSound();
+            _stepsWithOutKills++;
+        }
+        _validator.SearchForPossibleKills(_board, move.FinalPosition, _isWhiteTurn);
+        if (_validator.ForcedToMoveCheckers.Count != 0 && _hasKilled)
+        {
+            AiMakeTurn();
+        }
+
+        _history.AddRecord(_selectionPosition, move.FinalPosition, _isWhiteTurn);
+        _hasKilled = false;
+        _isWhiteTurn = !_isWhiteTurn;
+
+
+
+
+    }
+
+
+
 }
