@@ -1,8 +1,8 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+
 public class Move
 {
     Checker _selectedChecker;
@@ -62,6 +62,12 @@ public class AI : MonoBehaviour
             }
         }
         return moves;
+    }
+
+    public Move GetRandomMove(bool isWhiteTurn)
+    {
+        var moves = GetAllMoves(isWhiteTurn);
+        return moves[Random.Range(0, moves.Count)];
     }
 
 
