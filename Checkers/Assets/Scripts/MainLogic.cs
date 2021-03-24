@@ -144,26 +144,13 @@ public class MainLogic : MonoBehaviour
 
     private void CheckForEndGameCondition()
     {
-        bool hasWhite = false;
-        bool hasBlack = false;
-        for (int i = 0; i < _board.GetLength(0); i++)
-        {
-            for (int j = 0; j < _board.GetLength(1); j++)
-            {
-                if (_board[i, j] != null && _board[i, j].IsWhite)
-                    hasWhite = true;
-                if (_board[i, j] != null && !_board[i, j].IsWhite)
-                    hasBlack = true;
-
-            }
-        }
-
-        if (!hasWhite && hasBlack)
+        var moves = Move.GetAllMoves(_board, _validator, _isWhiteTurn);
+        if(_isWhiteTurn && moves.Count == 0)
         {
             Result = ResultOfGame.BlackWins;
             _gameState = GameState.Ended;
         }
-        if (!hasBlack && hasWhite)
+        if(!_isWhiteTurn && moves.Count == 0)
         {
             Result = ResultOfGame.WhiteWins;
             _gameState = GameState.Ended;
@@ -274,7 +261,6 @@ public class MainLogic : MonoBehaviour
         
         while (_gameState!=GameState.Ended && !_isWhiteTurn)
         {
-           
              var move = _ai.GetRandomMove(_board, _validator, _isWhiteTurn);
             _selectedChecker = move.SelectedChecker;
             _selectionPosition = move.StartPosition;
