@@ -101,7 +101,7 @@ public class MainLogic : MonoBehaviour
                 if (_isWhiteTurn)
                 {
                     TryMakeTurn(_selectionPosition, mouseDownPosition);
-                    if (_gameState != GameState.Ended && !_isWhiteTurn  )
+                    if (!_isWhiteTurn  )
                     {
                         AiMakeTurn();
                     }
@@ -183,10 +183,9 @@ public class MainLogic : MonoBehaviour
 
         _board[final.x, final.y] = _selectedChecker;
         _board[start.x, start.y] = null;
-        _mover.ReplaceChecker(_selectedChecker,final);
-
+         _mover.ReplaceChecker(_selectedChecker,final);
+        
         EndTurn(final);
-
        
         if (_validator.SearchForPossibleKills(_board, final, _isWhiteTurn).Count != 0 && _hasKilled)
             return;
@@ -236,7 +235,6 @@ public class MainLogic : MonoBehaviour
     }
     private void AiMakeTurn()
     {
-        
         while (!_isWhiteTurn)
         {
             var move = _ai.GetRandomMove(_board, _validator, _isWhiteTurn);
