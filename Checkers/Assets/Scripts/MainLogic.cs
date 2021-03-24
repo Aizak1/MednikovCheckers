@@ -84,13 +84,9 @@ public class MainLogic : MonoBehaviour
     {
         var mouseDownPosition = _selecter.RecordMousePosition();
         if (Input.GetMouseButtonDown(0))
-        {
             TryToSelectChecker(mouseDownPosition);
-        }
         if (_selectedChecker != null)
-        {
             _mover.UprageCheckerDragPosition(_selectedChecker);
-        }
         if (Input.GetMouseButtonUp(0))
         {
             _hinter.ChangeHighlightState(_validator.ForcedToMoveCheckers);
@@ -112,12 +108,8 @@ public class MainLogic : MonoBehaviour
             }
             _hinter.ShowCurrentTurn(_isWhiteTurn);
         }
-
         if (_gameState == GameState.Started)
-        {
             CheckForEndGameCondition();
-        }
-
     }
 
    
@@ -177,23 +169,10 @@ public class MainLogic : MonoBehaviour
         
         if (Math.Abs(start.x - final.x) >= 2)
         {
-            Vector2Int step = Checker.CalculateDirectiobalStep(start, final);
-            //Инкрементируем вектор,чтобы не проверять начальную клетку
-            Vector2Int startStep = start + step;
-            int stepCounter = 0;
-            while (stepCounter != Mathf.Abs(final.x - start.x))
-            {
-
-                Checker checkerToDelete = _board[startStep.x, startStep.y];
-                 if (checkerToDelete != null)
-                 {
-                    RemoveChecker(startStep, checkerToDelete);
-                    break;
-                 }
-                startStep += step;
-                stepCounter++;
-            }
+            if(_validator.HasCheckerToKill(_board,start,final,out Checker checkerToDelete,out Vector2Int deletePosition))
+                RemoveChecker(deletePosition, checkerToDelete);
         }
+       
         if (_validator.ForcedToMoveCheckers.Count != 0 && !_hasKilled)
         {
             _mover.ReplaceChecker(_selectedChecker, start);
@@ -211,8 +190,6 @@ public class MainLogic : MonoBehaviour
         if (_validator.ForcedToMoveCheckers.Count != 0 && _hasKilled)
             return;
         SwitchTurn();
-        
-        
     }
 
     private void RemoveChecker(Vector2Int deletePosition, Checker checkerToDelete)

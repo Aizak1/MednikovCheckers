@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class Checker : MonoBehaviour
 {
-  
     [SerializeField] private bool _isWhite;
     private const int _simpleStepDelta = 1;
     private const int _simpleBeatDelta = 2;
@@ -49,7 +48,7 @@ public class Checker : MonoBehaviour
             List<Checker> checkersBetweenKingPositions = new List<Checker>();
             if (CheckActionCondition(start,final, isWhiteturn, Mathf.Abs(final.x - start.x)))
             {
-                Vector2Int step = CalculateDirectiobalStep(start, final);
+                Vector2Int step = CalculateDirectionalStep(start, final);
                 //Инкрементируем вектор,чтобы не проверять начальную клетку
                 Vector2Int startStep = start + step;
                 int stepCounter = 0;
@@ -162,7 +161,7 @@ public class Checker : MonoBehaviour
         transform.rotation = Quaternion.Euler(-270, 0, 0);
     }
 
-    public static Vector2Int CalculateDirectiobalStep(Vector2Int start,Vector2Int final)
+    public static Vector2Int CalculateDirectionalStep(Vector2Int start,Vector2Int final)
     {
         //Из данного вектора используем знаки у координат
         Vector2 direction = ((Vector2)final - start).normalized;

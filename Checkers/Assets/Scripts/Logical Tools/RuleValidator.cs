@@ -80,6 +80,28 @@ public class RuleValidator:MonoBehaviour
       
     }
 
+    public bool HasCheckerToKill(Checker[,] _board,Vector2Int start,Vector2Int final,out Checker checkerToDelete,out Vector2Int deletePosition)
+    {
+        checkerToDelete = null;
+        deletePosition = Vector2Int.zero - Vector2Int.one;
+        Vector2Int step = Checker.CalculateDirectionalStep(start, final);
+        //Инкрементируем вектор,чтобы не проверять начальную клетку
+        Vector2Int startStep = start + step;
+        int stepCounter = 0;
+        while (stepCounter != Mathf.Abs(final.x - start.x))
+        {
+            if (_board[startStep.x, startStep.y] != null)
+            {
+                checkerToDelete = _board[startStep.x, startStep.y];
+                deletePosition = startStep;
+                return true;
+            }
+            startStep += step;
+            stepCounter++;
+        }
+        return false;
+    }
+
 
 
 }

@@ -28,9 +28,7 @@ public class Move
             for (int j = 0; j < board.GetLength(1); j++)
             {
                 if (board[i, j] != null)
-                    initialPoses.Add(new Vector2Int(i, j));
-                   
-                
+                    initialPoses.Add(new Vector2Int(i, j));   
             }
         }
 
@@ -54,22 +52,7 @@ public class Move
                     {
                         if (board[initialPos.x, initialPos.y].IsAbleToMove(board, initialPos, probableFinalPos, isWhiteTurn) && Mathf.Abs(initialPos.x - probableFinalPos.x) >= 2)
                         {
-                            bool KillInDirection = false;
-                            Vector2Int step = Checker.CalculateDirectiobalStep(initialPos, probableFinalPos);
-                            Vector2Int startStep = initialPos + step;
-                            int stepCounter = 0;
-                            while (stepCounter != Mathf.Abs(probableFinalPos.x - initialPos.x))
-                            {
-                                Checker checkerToDelete = board[startStep.x, startStep.y];
-                                if (checkerToDelete != null && checkerToDelete.IsWhite != isWhiteTurn)
-                                {
-                                    KillInDirection = true;
-                                    break;
-                                }
-                                startStep += step;
-                                stepCounter++;
-                            }
-                            if (KillInDirection)
+                            if (validator.HasCheckerToKill(board,initialPos,probableFinalPos, out Checker checkerToDelete,out Vector2Int deletePosition))
                                 moves.Add(new Move(board[initialPos.x, initialPos.y], initialPos, probableFinalPos));
                         }
                     }
