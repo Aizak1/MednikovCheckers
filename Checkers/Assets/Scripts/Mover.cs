@@ -5,7 +5,7 @@ using UnityEngine;
 public class Mover:MonoBehaviour
 {
    
-    public void Move(Checker checker,Vector2Int destination)
+    public void ReplaceChecker(Checker checker,Vector2Int destination)
     {
         checker.gameObject.transform.position = new Vector3(destination.x, 0, -destination.y);
     }
