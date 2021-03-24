@@ -32,7 +32,7 @@ public class Move
             }
         }
 
-       validator.SearchForPossibleKills(board, isWhiteTurn);
+       var forcedToMoveCheckers = validator.SearchForPossibleKills(board, isWhiteTurn);
         for (int i = 0; i < initialPoses.Count; i++)
         {
             for (int j = 0; j < board.GetLength(0); j++)
@@ -41,7 +41,7 @@ public class Move
                 {
                     Vector2Int initialPos = initialPoses[i];
                     Vector2Int probableFinalPos = new Vector2Int(j, k);
-                    if (validator.ForcedToMoveCheckers.Count == 0)
+                    if (forcedToMoveCheckers.Count == 0)
                     {
                         if (board[initialPos.x, initialPos.y].IsAbleToMove(board, initialPos, probableFinalPos, isWhiteTurn))
                         {

@@ -82,6 +82,8 @@ public class MainLogic : MonoBehaviour
     }
     private void Update()
     {
+        if (_gameState == GameState.Started)
+            CheckForEndGameCondition();
         var mouseDownPosition = _selecter.RecordMousePosition();
         if (Input.GetMouseButtonDown(0))
             TryToSelectChecker(mouseDownPosition);
@@ -89,7 +91,7 @@ public class MainLogic : MonoBehaviour
             _mover.UprageCheckerDragPosition(_selectedChecker);
         if (Input.GetMouseButtonUp(0))
         {
-            _hinter.ChangeHighlightState(_validator.ForcedToMoveCheckers);
+            _hinter.ChangeHighlightState(_validator.SearchForPossibleKills(_board,_isWhiteTurn));
              if(_secondPlayer == SecondPlayer.Human)
              {
                 TryMakeTurn(_selectionPosition, mouseDownPosition);
@@ -99,7 +101,7 @@ public class MainLogic : MonoBehaviour
                 if (_isWhiteTurn)
                 {
                     TryMakeTurn(_selectionPosition, mouseDownPosition);
-                    if (!_isWhiteTurn)
+                    if (_gameState != GameState.Ended && !_isWhiteTurn  )
                     {
                         AiMakeTurn();
                     }
@@ -108,24 +110,23 @@ public class MainLogic : MonoBehaviour
             }
             _hinter.ShowCurrentTurn(_isWhiteTurn);
         }
-        if (_gameState == GameState.Started)
-            CheckForEndGameCondition();
+       
     }
 
    
 
     private void TryToSelectChecker(Vector2Int mouseDownPosition)
     {
-        _validator.SearchForPossibleKills(_board, _isWhiteTurn);
-        if (_validator.ForcedToMoveCheckers.Count != 0)
+        var forcedToMoveCheckers = _validator.SearchForPossibleKills(_board, _isWhiteTurn);
+        if (forcedToMoveCheckers.Count != 0)
         {
-            _hinter.ChangeHighlightState(_validator.ForcedToMoveCheckers);
+            _hinter.ChangeHighlightState(forcedToMoveCheckers);
         }
         if (_validator.CellIsOutOfBounds(_board, mouseDownPosition))
             return;
 
         var cell = _selecter.PickACell(_board, mouseDownPosition);
-        if (_validator.SelectionIsValid(cell, _isWhiteTurn))
+        if (_validator.SelectionIsValid(cell, _isWhiteTurn, forcedToMoveCheckers))
         {
             _selectedChecker = _selecter.SelectChecker(cell);
             _selectionPosition = mouseDownPosition;
@@ -173,7 +174,7 @@ public class MainLogic : MonoBehaviour
                 RemoveChecker(deletePosition, checkerToDelete);
         }
        
-        if (_validator.ForcedToMoveCheckers.Count != 0 && !_hasKilled)
+        if (_validator.SearchForPossibleKills(_board,_isWhiteTurn).Count != 0 && !_hasKilled)
         {
             _mover.ReplaceChecker(_selectedChecker, start);
             _selecter.Deselect(ref _selectedChecker);
@@ -186,8 +187,8 @@ public class MainLogic : MonoBehaviour
 
         EndTurn(final);
 
-       _validator.SearchForPossibleKills(_board, final, _isWhiteTurn);
-        if (_validator.ForcedToMoveCheckers.Count != 0 && _hasKilled)
+       
+        if (_validator.SearchForPossibleKills(_board, final, _isWhiteTurn).Count != 0 && _hasKilled)
             return;
         SwitchTurn();
     }
@@ -236,12 +237,14 @@ public class MainLogic : MonoBehaviour
     private void AiMakeTurn()
     {
         
-        while (_gameState!=GameState.Ended && !_isWhiteTurn)
+        while (!_isWhiteTurn)
         {
-             var move = _ai.GetRandomMove(_board, _validator, _isWhiteTurn);
+            var move = _ai.GetRandomMove(_board, _validator, _isWhiteTurn);
+            if (move == null)
+                return;
             _selectedChecker = move.SelectedChecker;
             _selectionPosition = move.StartPosition;
-            TryMakeTurn(move.StartPosition, move.FinalPosition);
+            TryMakeTurn(move.StartPosition, move.FinalPosition); 
             
         }
     }

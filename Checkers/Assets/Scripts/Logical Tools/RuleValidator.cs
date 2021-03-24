@@ -4,18 +4,13 @@ using UnityEngine;
 
 public class RuleValidator:MonoBehaviour
 {
-    public List<Checker> ForcedToMoveCheckers { get; private set; }
 
-    private void Start()
-    {
-        ForcedToMoveCheckers = new List<Checker>();
-    }
-    public bool SelectionIsValid(Checker selectedChecker, bool _isWhiteTurn)
+    public bool SelectionIsValid(Checker selectedChecker, bool _isWhiteTurn,List<Checker> forcedToMoveCheckers)
     {
      
         if (selectedChecker != null && selectedChecker.IsWhite == _isWhiteTurn)
         {
-            if (ForcedToMoveCheckers.Count == 0)
+            if (forcedToMoveCheckers.Count == 0)
             {
 
                 return true;
@@ -23,7 +18,7 @@ public class RuleValidator:MonoBehaviour
             }
             else
             {
-                foreach (var item in ForcedToMoveCheckers)
+                foreach (var item in forcedToMoveCheckers)
                 {
                     if (selectedChecker == item)
                     {
@@ -44,14 +39,10 @@ public class RuleValidator:MonoBehaviour
             return true;
         return false;
     }
-    /// <summary>
-    /// Записывает в свойство ForcedToMoveCheckers шашки,которыми игрок обязан бить
-    /// </summary>
-    /// <param name="board"></param>
-    /// <param name="isWhiteTurn"></param>
-    public void SearchForPossibleKills(Checker[,] board, bool isWhiteTurn)
+    
+    public List<Checker> SearchForPossibleKills(Checker[,] board, bool isWhiteTurn)
     {
-        ForcedToMoveCheckers = new List<Checker>();
+        List<Checker> forcedToMoveCheckers = new List<Checker>();
         for (int i = 0; i < board.GetLength(0); i++)
         {
             for (int j = 0; j < board.GetLength(1); j++)
@@ -59,24 +50,22 @@ public class RuleValidator:MonoBehaviour
                 if (board[i, j] != null && board[i, j].IsWhite == isWhiteTurn)
                 {
                     if (board[i, j].IsForcedToMove(board,new Vector2Int(i,j), isWhiteTurn))
-                        ForcedToMoveCheckers.Add(board[i, j]);
+                        forcedToMoveCheckers.Add(board[i, j]);
                 }
             }
         }
-        
+        return forcedToMoveCheckers;
+
     }
-    /// <summary>
-    /// Записывает в свойство ForcedToMoveCheckers шашки,которыми игрок обязан бить
-    /// </summary>
-    /// <param name="board"></param>
-    /// <param name="isWhiteTurn"></param>
-    public void SearchForPossibleKills(Checker[,] _board,Vector2Int coodinates,bool isWhiteTurn)
+  
+    public List<Checker> SearchForPossibleKills(Checker[,] _board,Vector2Int coodinates,bool isWhiteTurn)
     {
-        ForcedToMoveCheckers = new List<Checker>();
+        List<Checker> forcedToMoveCheckers = new List<Checker>();
         if (_board[coodinates.x, coodinates.y].IsForcedToMove(_board,coodinates, isWhiteTurn))
         {
-            ForcedToMoveCheckers.Add(_board[coodinates.x, coodinates.y]);
+            forcedToMoveCheckers.Add(_board[coodinates.x, coodinates.y]);
         }
+        return forcedToMoveCheckers;
       
     }
 
