@@ -26,6 +26,7 @@ public class MainLogic : MonoBehaviour
     private Hinter _hinter;
     private SFX _sfx;
     private AI _ai;
+
     private bool _isWhiteTurn;
     private static int _stepsWithOutKills = 0;
     private bool _hasKilled;
@@ -45,7 +46,7 @@ public class MainLogic : MonoBehaviour
             else
                 initialZCoordinate = 1;
 
-            if (!(x > 2 && x < 5))
+            if ((x <= 2 || x >= 5))
                 for (int z = initialZCoordinate; z < 8; z += 2)
                 {
                     if (x >= 0 && x < 3)
@@ -90,7 +91,6 @@ public class MainLogic : MonoBehaviour
         {
             _mover.UprageCheckerDragPosition(_selectedChecker);
         }
-
         if (Input.GetMouseButtonUp(0))
         {
             _hinter.ChangeHighlightState(_validator.ForcedToMoveCheckers);
@@ -105,7 +105,7 @@ public class MainLogic : MonoBehaviour
                     TryMakeTurn(_selectionPosition, mouseDownPosition);
                     if (!_isWhiteTurn)
                     {
-                        AiTurn();
+                        AiMakeTurn();
                     }
                 }
               
@@ -133,7 +133,7 @@ public class MainLogic : MonoBehaviour
             return;
 
         var cell = _selecter.PickACell(_board, mouseDownPosition);
-        if (_validator.SelectionValidate(cell, _isWhiteTurn))
+        if (_validator.SelectionIsValid(cell, _isWhiteTurn))
         {
             _selectedChecker = _selecter.SelectChecker(cell);
             _selectionPosition = mouseDownPosition;
@@ -181,19 +181,13 @@ public class MainLogic : MonoBehaviour
         if (_selectedChecker == null)
             return;
 
-        if (_validator.CellIsOutOfBounds(_board,final))
+        if (_validator.CellIsOutOfBounds(_board,final) || !_selectedChecker.IsAbleToMove(_board, start, final, _isWhiteTurn))
         {
               _mover.ReplaceChecker(_selectedChecker, start);
             _selecter.Deselect(ref _selectedChecker);
             return;
         }
-        if (!_selectedChecker.IsAbleToMove(_board, start, final, _isWhiteTurn))
-        {
-            _mover.ReplaceChecker(_selectedChecker, start);
-            _selecter.Deselect(ref _selectedChecker);
-            return;
-        }
-
+        
         if (Math.Abs(start.x - final.x) >= 2)
         {
             Vector2Int step = Checker.CalculateDirectiobalStep(start, final);
@@ -275,7 +269,7 @@ public class MainLogic : MonoBehaviour
         _hasKilled = false;
         _isWhiteTurn = !_isWhiteTurn;
     }
-    private void AiTurn()
+    private void AiMakeTurn()
     {
         
         while (_gameState!=GameState.Ended && !_isWhiteTurn)

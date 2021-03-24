@@ -10,7 +10,7 @@ public class RuleValidator:MonoBehaviour
     {
         ForcedToMoveCheckers = new List<Checker>();
     }
-    public bool SelectionValidate(Checker selectedChecker, bool _isWhiteTurn)
+    public bool SelectionIsValid(Checker selectedChecker, bool _isWhiteTurn)
     {
      
         if (selectedChecker != null && selectedChecker.IsWhite == _isWhiteTurn)
@@ -40,7 +40,7 @@ public class RuleValidator:MonoBehaviour
 
     public bool CellIsOutOfBounds(Checker[,] checkers,Vector2Int coordinate)
     {
-        if (coordinate.x < 0 || coordinate.x > checkers.GetLength(0) || coordinate.y < 0 || coordinate.y > checkers.GetLength(1))
+        if (coordinate.x < 0 || coordinate.x >= checkers.GetLength(0) || coordinate.y < 0 || coordinate.y >= checkers.GetLength(1))
             return true;
         return false;
     }
