@@ -7,29 +7,18 @@ public class RuleValidator:MonoBehaviour
 
     public bool SelectionIsValid(Checker selectedChecker, bool _isWhiteTurn,List<Checker> forcedToMoveCheckers)
     {
-     
-        if (selectedChecker != null && selectedChecker.IsWhite == _isWhiteTurn)
-        {
-            if (forcedToMoveCheckers.Count == 0)
-            {
-
-                return true;
-
-            }
-            else
-            {
-                foreach (var item in forcedToMoveCheckers)
-                {
-                    if (selectedChecker == item)
-                    {
-
-                        return true;
-                    }
-                }
-
-            }
-        }
+        if (selectedChecker == null || selectedChecker.IsWhite != _isWhiteTurn)
+            return false;
         
+        if (forcedToMoveCheckers.Count == 0)
+            return true;
+        else
+            foreach (var item in forcedToMoveCheckers)
+            {
+                if (selectedChecker == item)
+                    return true;
+            }
+
         return false;
     }
 

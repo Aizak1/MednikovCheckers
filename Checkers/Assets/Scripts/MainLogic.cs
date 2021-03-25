@@ -28,7 +28,7 @@ public class MainLogic : MonoBehaviour
     private AI _ai;
 
     private bool _isWhiteTurn;
-    private static int _stepsWithOutKills = 0;
+    private  int _stepsWithoutKills = 0;
     private bool _hasKilled;
 
     public GameState GetGameState => _gameState;
@@ -82,34 +82,25 @@ public class MainLogic : MonoBehaviour
     }
     private void Update()
     {
-        if (_gameState == GameState.Started)
-            CheckForEndGameCondition();
         var mouseDownPosition = _selecter.RecordMousePosition();
         if (Input.GetMouseButtonDown(0))
             TryToSelectChecker(mouseDownPosition);
+
         if (_selectedChecker != null)
             _mover.UprageCheckerDragPosition(_selectedChecker);
+
         if (Input.GetMouseButtonUp(0))
         {
             _hinter.ChangeHighlightState(_validator.SearchForPossibleKills(_board,_isWhiteTurn));
-             if(_secondPlayer == SecondPlayer.Human)
-             {
-                TryMakeTurn(_selectionPosition, mouseDownPosition);
-             }
-            else
-            {
-                if (_isWhiteTurn)
-                {
-                    TryMakeTurn(_selectionPosition, mouseDownPosition);
-                    if (!_isWhiteTurn  )
-                    {
-                        AiMakeTurn();
-                    }
-                }
-              
-            }
-            _hinter.ShowCurrentTurn(_isWhiteTurn);
+             TryMakeTurn(_selectionPosition, mouseDownPosition);
+            if (_secondPlayer == SecondPlayer.Human)
+                _hinter.ShowCurrentTurn(_isWhiteTurn);
         }
+        if (_gameState == GameState.Started)
+            CheckForEndGameCondition();
+
+        if (!_isWhiteTurn && _secondPlayer == SecondPlayer.AI)
+            AiMakeTurn();
        
     }
 
@@ -148,10 +139,12 @@ public class MainLogic : MonoBehaviour
             Result = ResultOfGame.WhiteWins;
             _gameState = GameState.Ended;
         }
-        if (_stepsWithOutKills == 15)
+        //15 ходов в шашках без боя,считаются ничьей
+        if (_stepsWithoutKills == 15)
         {
             Result = ResultOfGame.Draw;
             _gameState = GameState.Ended;
+           
         }
 
     }
@@ -161,32 +154,33 @@ public class MainLogic : MonoBehaviour
         if (_selectedChecker == null)
             return;
 
-        if (_validator.CellIsOutOfBounds(_board,final) || !_selectedChecker.IsAbleToMove(_board, start, final, _isWhiteTurn))
+        if (_validator.CellIsOutOfBounds(_board, final) || !_selectedChecker.IsAbleToMove(_board, start, final, _isWhiteTurn))
         {
-              _mover.ReplaceChecker(_selectedChecker, start);
+            _mover.VisualReplace(_selectedChecker, start);
             _selecter.Deselect(ref _selectedChecker);
             return;
         }
-        
+
         if (Math.Abs(start.x - final.x) >= 2)
         {
-            if(_validator.HasCheckerToKill(_board,start,final,out Checker checkerToDelete,out Vector2Int deletePosition))
+            if (_validator.HasCheckerToKill(_board, start, final, out Checker checkerToDelete, out Vector2Int deletePosition))
                 RemoveChecker(deletePosition, checkerToDelete);
         }
-       
-        if (_validator.SearchForPossibleKills(_board,_isWhiteTurn).Count != 0 && !_hasKilled)
-        {
-            _mover.ReplaceChecker(_selectedChecker, start);
-            _selecter.Deselect(ref _selectedChecker);
-             return;
-        }
 
-        _board[final.x, final.y] = _selectedChecker;
-        _board[start.x, start.y] = null;
-         _mover.ReplaceChecker(_selectedChecker,final);
-        
-        EndTurn(final);
-       
+        if (_validator.SearchForPossibleKills(_board, _isWhiteTurn).Count != 0 && !_hasKilled)
+        {
+            _mover.VisualReplace(_selectedChecker, start);
+            _selecter.Deselect(ref _selectedChecker);
+            return;
+        }
+        _mover.VisualReplace(_selectedChecker, final);
+        EndTurn(start, final);
+    }
+
+
+    private void EndTurn(Vector2Int start, Vector2Int final)
+    {
+        MakeTurn(start, final);
         if (_validator.SearchForPossibleKills(_board, final, _isWhiteTurn).Count != 0 && _hasKilled)
             return;
         SwitchTurn();
@@ -200,8 +194,10 @@ public class MainLogic : MonoBehaviour
         Instantiate(_vfx, new Vector3(deletePosition.x, 0, -deletePosition.y), Quaternion.identity);
     }
 
-    private void EndTurn(Vector2Int final)
+    private void MakeTurn(Vector2Int start,Vector2Int final)
     {
+        _board[final.x, final.y] = _selectedChecker;
+        _board[start.x, start.y] = null;
 
         if (_selectedChecker.IsWhite && final.x == 7)
         {
@@ -216,12 +212,12 @@ public class MainLogic : MonoBehaviour
         if (_hasKilled)
         {
             _sfx.PlayKillSound();
-            _stepsWithOutKills = 0;
+            _stepsWithoutKills = 0;
         }
         else
         {
             _sfx.PlayDropSound();
-            _stepsWithOutKills++;
+            _stepsWithoutKills++;
         }
         _history.AddRecord(_selectionPosition, final, _isWhiteTurn);
         
@@ -235,16 +231,14 @@ public class MainLogic : MonoBehaviour
     }
     private void AiMakeTurn()
     {
-        while (!_isWhiteTurn)
-        {
-            var move = _ai.GetRandomMove(_board, _validator, _isWhiteTurn);
-            if (move == null)
-                return;
-            _selectedChecker = move.SelectedChecker;
-            _selectionPosition = move.StartPosition;
-            TryMakeTurn(move.StartPosition, move.FinalPosition); 
+        var move = _ai.GetRandomMove(_board, _validator, _isWhiteTurn);
+        if (move == null)
+            return;
+        _selectedChecker = move.SelectedChecker;
+         _selectionPosition = move.StartPosition;
+         TryMakeTurn(move.StartPosition, move.FinalPosition); 
             
-        }
+        
     }
 
 

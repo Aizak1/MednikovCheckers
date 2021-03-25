@@ -24,7 +24,7 @@ public class VictoryValidator : MonoBehaviour
             else if (_logic.Result == ResultOfGame.BlackWins)
                 _text.text = "Black Wins";
             else
-                _text.text = "Draw";
+                _text.text = "Draw Match";
         }
         
     }
