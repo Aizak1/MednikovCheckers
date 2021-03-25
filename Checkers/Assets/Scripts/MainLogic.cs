@@ -231,7 +231,6 @@ public class MainLogic : MonoBehaviour
     }
     private void AiMakeTurn()
     {
-        //var move = _ai.GetRandomMove(_board, _validator, _isWhiteTurn);
         Move bestMove = _ai.Minimax(_board, _validator, _isWhiteTurn, 3, _gameState).Item2;
         if (bestMove == null)
             return;

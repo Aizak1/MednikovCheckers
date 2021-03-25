@@ -12,7 +12,6 @@ public class Move
 
     public Vector2Int FinalPosition => _finalPosition;
 
-    public bool isSuccess => _finalPosition.x - _startPosition.x >= 2;
 
     public Move(Checker _selectedChecker, Vector2Int _startPosition, Vector2Int _finalPosition)
     {
