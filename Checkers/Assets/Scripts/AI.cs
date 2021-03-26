@@ -6,6 +6,15 @@ using UnityEngine;
 
 public class AI : MonoBehaviour
 {
+    public Move GetRandomMove(Checker[,] board, RuleValidator validator, bool isWhiteTurn)
+    {
+        var moves = Move.GetAllMoves(board, validator, isWhiteTurn);
+        if (moves.Count != 0)
+        return moves[UnityEngine.Random.Range(0, moves.Count)];
+        else
+            return null;
+
+    }
     public Tuple<float,Move> Minimax(Checker[,] board,RuleValidator validator,bool isWhiteTurn, int depth,GameState gameState)
     {
         if (gameState == GameState.Ended || depth == 0)

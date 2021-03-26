@@ -235,7 +235,12 @@ public class MainLogic : MonoBehaviour
         // 3 - оптимальная глубина для корректного и быстрого расчета хода ИИ
         Move bestMove = _ai.Minimax(_board, _validator, _isWhiteTurn, 3, _gameState).Item2;
         if (bestMove == null)
-            return;
+        {
+            //В случае если нет выигрышного хода,выбирает случайный
+            bestMove = _ai.GetRandomMove(_board, _validator, _isWhiteTurn);
+            if (bestMove == null)
+                return;
+        }
         _selectedChecker = bestMove.SelectedChecker;
          _selectionPosition = bestMove.StartPosition;
          TryMakeTurn(bestMove.StartPosition, bestMove.FinalPosition); 
