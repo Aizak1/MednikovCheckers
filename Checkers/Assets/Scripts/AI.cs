@@ -18,10 +18,10 @@ public class AI : MonoBehaviour
 
         foreach (Move move in Move.GetAllMoves(board, validator,isWhiteTurn))
         {
-            Checker[,] b = SimulateMove(board,validator, move);
+            Checker[,] simulatedBoard = SimulateMove(board,validator, move);
             float currentScore;
 
-            currentScore = Minimax(b, validator, !isWhiteTurn,depth-1,gameState).Item1;
+            currentScore = Minimax(simulatedBoard, validator, !isWhiteTurn,depth-1,gameState).Item1;
 
             if (!isWhiteTurn)
             {
