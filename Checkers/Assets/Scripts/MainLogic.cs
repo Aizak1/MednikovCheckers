@@ -119,7 +119,7 @@ public class MainLogic : MonoBehaviour
         var cell = _selecter.PickACell(_board, mouseDownPosition);
         if (_validator.SelectionIsValid(cell, _isWhiteTurn, forcedToMoveCheckers))
         {
-            _selectedChecker = _selecter.SelectChecker(cell);
+            _selectedChecker = cell;
             _selectionPosition = mouseDownPosition;
             _sfx.PlayPicKSound();
         }
@@ -139,7 +139,7 @@ public class MainLogic : MonoBehaviour
             Result = ResultOfGame.WhiteWins;
             _gameState = GameState.Ended;
         }
-        //15 ходов в шашках без боя,считаются ничьей
+        //15 ходов без боя только дамками,считаются ничьей
         if (_stepsWithoutKills == 15)
         {
             Result = ResultOfGame.Draw;
@@ -208,7 +208,6 @@ public class MainLogic : MonoBehaviour
             _selectedChecker.BecomeKing();
         }
 
-        _selecter.Deselect(ref _selectedChecker);
         if (_hasKilled)
         {
             _sfx.PlayKillSound();
@@ -217,8 +216,10 @@ public class MainLogic : MonoBehaviour
         else
         {
             _sfx.PlayDropSound();
-            _stepsWithoutKills++;
+            if(!_selectedChecker.IsSimple)
+                _stepsWithoutKills++;
         }
+        _selecter.Deselect(ref _selectedChecker);
         _history.AddRecord(_selectionPosition, final, _isWhiteTurn);
         
         
@@ -231,6 +232,7 @@ public class MainLogic : MonoBehaviour
     }
     private void AiMakeTurn()
     {
+        // 3 - оптимальная глубина для корректного и быстрого расчета хода ИИ
         Move bestMove = _ai.Minimax(_board, _validator, _isWhiteTurn, 3, _gameState).Item2;
         if (bestMove == null)
             return;

@@ -36,10 +36,7 @@ public class Selecter:MonoBehaviour
     {
         return _checkers[coodinate.x, coodinate.y];
     }
-    public Checker SelectChecker(Checker checker)
-    {
-        return checker;
-    }
+    
     public void Deselect(ref Checker selectedChecker)
     {
         selectedChecker = null;
