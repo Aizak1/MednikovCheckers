@@ -14,13 +14,13 @@ public class Hinter : MonoBehaviour
     private Material _initialMaterial;
 
 
-    private Vector3 _initialWhitePosition;
-    private Vector3 _initialBlackPosition;
+    private Vector3 _initialWhiteDecorativePosition;
+    private Vector3 _initialBlackDecorativePosition;
     [SerializeField] private float _speed;
     private void Start()
     {
-        _initialWhitePosition = _whiteDecorative.transform.position;
-        _initialBlackPosition = _blackDecorative.transform.position;
+        _initialWhiteDecorativePosition = _whiteDecorative.transform.position;
+        _initialBlackDecorativePosition = _blackDecorative.transform.position;
         _initialMaterial = _whiteDecorative.GetComponent<Renderer>().sharedMaterial;
         StartCoroutine(FirstTurn());
     }
@@ -45,15 +45,15 @@ public class Hinter : MonoBehaviour
             while (_whiteDecorative.transform.position != _whiteWaterSurface)
             {
                 MoveDecorativeObject(_whiteDecorative, _whiteWaterSurface);
-                MoveDecorativeObject(_blackDecorative, _initialBlackPosition);
+                MoveDecorativeObject(_blackDecorative, _initialBlackDecorativePosition);
                 yield return null;
             }
         }
         else
         {
-            while(_whiteDecorative.transform.position != _initialWhitePosition)
+            while(_whiteDecorative.transform.position != _initialWhiteDecorativePosition)
             {
-                MoveDecorativeObject(_whiteDecorative, _initialWhitePosition);
+                MoveDecorativeObject(_whiteDecorative, _initialWhiteDecorativePosition);
                 MoveDecorativeObject(_blackDecorative, _blackWaterSurface);
                 yield return null;
             }
