@@ -69,7 +69,6 @@ public class Hinter : MonoBehaviour
     {
         foreach (var item in forcedToMoveCheckers)
         {
-
             var renderer = item.gameObject.GetComponent<Renderer>();
             if (renderer.sharedMaterial  == _initialMaterial)
                 renderer.sharedMaterial = _materialToHighlightForces;

@@ -8,8 +8,6 @@ public class SFX : MonoBehaviour
     [SerializeField] private AudioClip _dropSound;
     [SerializeField] private AudioClip _killSound;
     private AudioSource _audioSource;
-
-
     private void Start()
     {
         _audioSource = GetComponent<AudioSource>();

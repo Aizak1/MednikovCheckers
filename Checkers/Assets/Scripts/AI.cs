@@ -13,7 +13,6 @@ public class AI : MonoBehaviour
         return moves[UnityEngine.Random.Range(0, moves.Count)];
         else
             return null;
-
     }
     public Tuple<float,Move> Minimax(Checker[,] board,RuleValidator validator,bool isWhiteTurn, int depth,GameState gameState)
     {

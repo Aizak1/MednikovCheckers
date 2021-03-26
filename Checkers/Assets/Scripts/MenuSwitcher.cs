@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class MenuSwitcher : MonoBehaviour
 {
-    [SerializeField] Canvas _startMenu;
-    [SerializeField] Canvas _ruleMenu;
+    [SerializeField] private Canvas _startMenu;
+    [SerializeField] private Canvas _ruleMenu;
 
     public void SwitchMenu()
     {

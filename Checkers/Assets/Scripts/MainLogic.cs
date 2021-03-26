@@ -245,7 +245,6 @@ public class MainLogic : MonoBehaviour
          _selectionPosition = bestMove.StartPosition;
          TryMakeTurn(bestMove.StartPosition, bestMove.FinalPosition); 
             
-        
     }
 
 

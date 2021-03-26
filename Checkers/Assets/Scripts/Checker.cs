@@ -131,7 +131,6 @@ public class Checker : MonoBehaviour
 
     private bool CheckDiagonal(Checker[,] board, Vector2Int start, int stepsToDiagonalEnd, Vector2Int directionStep)
     {
-       
         bool hasSameColor = false;
 
         for (int i = 0; i < stepsToDiagonalEnd; i++)

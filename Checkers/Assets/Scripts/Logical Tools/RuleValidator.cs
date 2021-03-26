@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class RuleValidator:MonoBehaviour
 {
-
     public bool SelectionIsValid(Checker selectedChecker, bool _isWhiteTurn,List<Checker> forcedToMoveCheckers)
     {
         if (selectedChecker == null || selectedChecker.IsWhite != _isWhiteTurn)
